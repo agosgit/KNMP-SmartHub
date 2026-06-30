@@ -1,0 +1,192 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  PENGELOLA
+  TPI
+  KOPERASI
+  PENYULUH
+  PEMDA
+  KKP
+}
+
+enum RegionType {
+  PROVINSI
+  KABUPATEN
+  KECAMATAN
+  DESA
+}
+
+enum FacilityType {
+  COLD_STORAGE
+  TPI
+  PABRIK_ES
+  DERMAGA
+  SPBN
+  LAINNYA
+}
+
+model User {
+  id                Int                @id @default(autoincrement())
+  email             String             @unique
+  password          String
+  name              String
+  role              Role               @default(PENGELOLA)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  productions       FishProduction[]
+  distributions     FishDistribution[]
+  monitoringReports MonitoringReport[]
+}
+
+model Region {
+  id        Int        @id @default(autoincrement())
+  name      String
+  type      RegionType
+  parentId  Int?
+  parent    Region?    @relation("RegionHierarchy", fields: [parentId], references: [id])
+  children  Region[]   @relation("RegionHierarchy")
+  knmps     Knmp[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Knmp {
+  id                Int                @id @default(autoincrement())
+  name              String
+  address           String
+  latitude          Float
+  longitude         Float
+  regionId          Int
+  region            Region             @relation(fields: [regionId], references: [id])
+  status            String             @default("NORMAL") // NORMAL, WARNING, CRITICAL
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  facilities        Facility[]
+  productions       FishProduction[]
+  distributions     FishDistribution[]
+  cooperatives      Cooperative[]
+  kpiScores         KpiScore[]
+  healthIndices     HealthIndex[]
+  topsisRankings    TopsisRanking[]
+  monitoringReports MonitoringReport[]
+}
+
+model Facility {
+  id        Int          @id @default(autoincrement())
+  name      String
+  type      FacilityType
+  capacity  Float        // Kapasitas dalam ton, unit, dll.
+  status    String       @default("ACTIVE") // ACTIVE, MAINTENANCE, INACTIVE
+  knmpId    Int
+  knmp      Knmp         @relation(fields: [knmpId], references: [id])
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
+model FishProduction {
+  id         Int      @id @default(autoincrement())
+  fishType   String
+  volumeKg   Float
+  date       DateTime @default(now())
+  knmpId     Int
+  knmp       Knmp     @relation(fields: [knmpId], references: [id])
+  reporterId Int
+  reporter   User     @relation(fields: [reporterId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model FishDistribution {
+  id          Int      @id @default(autoincrement())
+  destination String
+  volumeKg    Float
+  date        DateTime @default(now())
+  knmpId      Int
+  knmp        Knmp     @relation(fields: [knmpId], references: [id])
+  reporterId  Int
+  reporter    User     @relation(fields: [reporterId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Cooperative {
+  id               Int      @id @default(autoincrement())
+  name             String
+  activeMembers    Int
+  transactions     Int      // Jumlah transaksi per bulan
+  transactionValue Float    // Nilai transaksi (Rp)
+  date             DateTime @default(now())
+  knmpId           Int
+  knmp             Knmp     @relation(fields: [knmpId], references: [id])
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model KpiDefinition {
+  id          Int        @id @default(autoincrement())
+  name        String     @unique
+  key         String     @unique // e.g. PRODUCTION, DISTRIBUTION, COLD_STORAGE, etc.
+  weight      Float      // Bobot kriteria (AHP output)
+  description String?
+  kpiScores   KpiScore[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model KpiScore {
+  id              Int           @id @default(autoincrement())
+  knmpId          Int
+  knmp            Knmp          @relation(fields: [knmpId], references: [id])
+  kpiDefinitionId Int
+  kpiDefinition   KpiDefinition @relation(fields: [kpiDefinitionId], references: [id])
+  score           Float         // Normalisasi ke 0 - 100
+  date            DateTime      @default(now())
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model HealthIndex {
+  id          Int      @id @default(autoincrement())
+  knmpId      Int
+  knmp        Knmp     @relation(fields: [knmpId], references: [id])
+  healthIndex Float    // 0 - 100
+  status      String   // SANGAT_BAIK, BAIK, MODERAT, PERLU_PERHATIAN, KRITIS
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model TopsisRanking {
+  id        Int      @id @default(autoincrement())
+  knmpId    Int
+  knmp      Knmp     @relation(fields: [knmpId], references: [id])
+  ccScore   Float    // Closeness Coefficient (0.0 - 1.0)
+  ranking   Int
+  status    String   // SANGAT_URGENT, URGENT, TINGGI, SEDANG, RENDAH, SANGAT_RENDAH
+  dPlus     Float    @default(0.0)
+  dMinus    Float    @default(0.0)
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MonitoringReport {
+  id         Int      @id @default(autoincrement())
+  title      String
+  notes      String
+  status     String   // NORMAL, WARNING, CRITICAL
+  date       DateTime @default(now())
+  knmpId     Int
+  knmp       Knmp     @relation(fields: [knmpId], references: [id])
+  reporterId Int
+  reporter   User     @relation(fields: [reporterId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
