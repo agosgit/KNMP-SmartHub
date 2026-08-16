@@ -113,7 +113,7 @@ const GISMap = () => {
             <MapContainer 
               center={centerPosition} 
               zoom={zoomLevel} 
-              style={{ height: '560px', width: '100%' }}
+              style={{ height: 'clamp(360px, 60vh, 560px)', width: '100%' }}
               zoomControl={true}
             >
               <TileLayer

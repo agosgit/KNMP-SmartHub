@@ -172,6 +172,7 @@ const styles = {
   tableWrapper: {
     width: '100%',
     overflowX: 'auto',
+    WebkitOverflowScrolling: 'touch',
   },
   tableLoading: {
     textAlign: 'center',
@@ -181,6 +182,7 @@ const styles = {
   },
   table: {
     width: '100%',
+    minWidth: '680px',
     borderCollapse: 'collapse',
     textAlign: 'left',
   },

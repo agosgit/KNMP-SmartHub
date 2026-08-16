@@ -270,9 +270,9 @@ const styles = {
     color: '#9CA3AF',
   },
   twoColumnGrid: {
-    display: 'flex',
-    gap: '24px',
-    flexWrap: 'wrap',
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+    gap: '20px',
   },
   cardTitle: {
     fontSize: '15px',

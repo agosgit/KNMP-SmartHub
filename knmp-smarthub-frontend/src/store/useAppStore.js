@@ -4,6 +4,11 @@ const useAppStore = create((set) => ({
   token: localStorage.getItem('knmp_token') || null,
   user: JSON.parse(localStorage.getItem('knmp_user')) || null,
   isAuthenticated: !!localStorage.getItem('knmp_token'),
+  isSidebarOpen: false,
+
+  toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
+  closeSidebar: () => set({ isSidebarOpen: false }),
+  openSidebar: () => set({ isSidebarOpen: true }),
 
   login: (userData, token) => {
     localStorage.setItem('knmp_token', token);
@@ -22,6 +27,7 @@ const useAppStore = create((set) => ({
       token: null,
       user: null,
       isAuthenticated: false,
+      isSidebarOpen: false,
     });
   },
 

@@ -434,24 +434,26 @@ const styles = {
   },
   tabsContainer: {
     display: 'flex',
-    gap: '12px',
+    gap: '10px',
     overflowX: 'auto',
-    paddingBottom: '4px',
+    WebkitOverflowScrolling: 'touch',
+    paddingBottom: '6px',
   },
   tabButton: {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    padding: '12px 20px',
+    padding: '10px 16px',
     backgroundColor: 'rgba(255, 255, 255, 0.02)',
     border: '1px solid rgba(255, 255, 255, 0.05)',
     borderRadius: '10px',
     color: '#9CA3AF',
-    fontSize: '14px',
+    fontSize: '13px',
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
     whiteSpace: 'nowrap',
+    flexShrink: 0,
   },
   tabButtonActive: {
     backgroundColor: 'rgba(0, 242, 254, 0.06)',
@@ -486,9 +488,9 @@ const styles = {
     gap: '8px',
   },
   rowInputs: {
-    display: 'flex',
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
     gap: '16px',
-    flexWrap: 'wrap',
   },
   textarea: {
     resize: 'vertical',
@@ -496,8 +498,9 @@ const styles = {
   },
   submitBtn: {
     marginTop: '12px',
-    alignSelf: 'flex-start',
     height: '44px',
+    width: 'fit-content',
+    minWidth: '160px',
   },
   unauthorizedContainer: {
     display: 'flex',
