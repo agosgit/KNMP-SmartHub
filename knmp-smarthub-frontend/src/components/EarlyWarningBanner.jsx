@@ -134,21 +134,21 @@ const styles = {
   headline: {
     fontSize: '15px',
     fontWeight: '700',
-    color: '#F3F4F6',
+    color: 'var(--text-primary)',
   },
   subtext: {
     fontSize: '13px',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
     marginTop: '2px',
   },
   toggleBtn: {
     display: 'flex',
     alignItems: 'center',
     gap: '6px',
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-    border: '1px solid rgba(255, 255, 255, 0.06)',
+    backgroundColor: 'var(--bg-card)',
+    border: '1px solid var(--border-color)',
     borderRadius: '8px',
-    color: '#F3F4F6',
+    color: 'var(--text-primary)',
     fontSize: '12px',
     fontWeight: '600',
     padding: '8px 14px',
@@ -159,12 +159,12 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     gap: '12px',
-    borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+    borderTop: '1px solid var(--border-color)',
     paddingTop: '16px',
   },
   warningItem: {
-    backgroundColor: 'rgba(0, 0, 0, 0.15)',
-    border: '1px solid rgba(255, 255, 255, 0.03)',
+    backgroundColor: 'var(--bg-secondary)',
+    border: '1px solid var(--border-color)',
     borderRadius: '12px',
     padding: '14px 16px',
     display: 'flex',
@@ -184,7 +184,7 @@ const styles = {
   itemKnmpName: {
     fontSize: '14px',
     fontWeight: '600',
-    color: '#F3F4F6',
+    color: 'var(--text-primary)',
   },
   itemBadge: {
     fontSize: '11px',
@@ -198,7 +198,7 @@ const styles = {
   },
   kpiListLabel: {
     fontSize: '12px',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
     fontWeight: '500',
   },
   kpiBadges: {
@@ -229,11 +229,11 @@ const styles = {
   },
   reportLi: {
     fontSize: '12px',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
     lineHeight: '1.4',
   },
   reportTitle: {
-    color: '#F3F4F6',
+    color: 'var(--text-primary)',
   },
 };
 

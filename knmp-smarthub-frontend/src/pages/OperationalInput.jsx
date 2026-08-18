@@ -442,7 +442,7 @@ const styles = {
   },
   dropdown: {
     height: '46px',
-    backgroundColor: '#0F131D',
+    backgroundColor: 'var(--bg-secondary)',
   },
   tabsContainer: {
     display: 'flex',
@@ -456,10 +456,10 @@ const styles = {
     alignItems: 'center',
     gap: '8px',
     padding: '10px 16px',
-    backgroundColor: 'rgba(255, 255, 255, 0.02)',
-    border: '1px solid rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'var(--bg-secondary)',
+    border: '1px solid var(--border-color)',
     borderRadius: '10px',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
     fontSize: '13px',
     fontWeight: '600',
     cursor: 'pointer',
@@ -468,9 +468,9 @@ const styles = {
     flexShrink: 0,
   },
   tabButtonActive: {
-    backgroundColor: 'rgba(0, 242, 254, 0.06)',
-    borderColor: '#00F2FE',
-    color: '#00F2FE',
+    backgroundColor: 'var(--border-glow)',
+    borderColor: 'var(--color-primary)',
+    color: 'var(--color-primary)',
   },
   formCard: {
     minHeight: '360px',
@@ -481,17 +481,17 @@ const styles = {
     gap: '20px',
   },
   formHeader: {
-    borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+    borderBottom: '1px solid var(--border-color)',
     paddingBottom: '16px',
     marginBottom: '8px',
   },
   formTitle: {
     fontSize: '16px',
-    color: '#F3F4F6',
+    color: 'var(--text-primary)',
   },
   formSubtitle: {
     fontSize: '12px',
-    color: '#6B7280',
+    color: 'var(--text-muted)',
     marginTop: '4px',
   },
   inputGroup: {
@@ -526,11 +526,11 @@ const styles = {
   unauthTitle: {
     fontSize: '18px',
     fontWeight: '700',
-    color: '#EF4444',
+    color: 'var(--color-critical)',
   },
   unauthText: {
     fontSize: '14px',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
     maxWidth: '360px',
     lineHeight: '1.5',
   },

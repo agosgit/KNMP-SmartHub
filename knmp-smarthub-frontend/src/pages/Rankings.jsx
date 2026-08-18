@@ -141,11 +141,11 @@ const styles = {
   explainTitle: {
     fontSize: '15px',
     fontWeight: '700',
-    color: '#00F2FE',
+    color: 'var(--color-primary)',
   },
   explainText: {
     fontSize: '13px',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
     lineHeight: '1.6',
   },
   card: {
@@ -160,12 +160,12 @@ const styles = {
   },
   cardTitle: {
     fontSize: '16px',
-    color: '#F3F4F6',
+    color: 'var(--text-primary)',
   },
   countText: {
     fontSize: '12px',
-    color: '#9CA3AF',
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    color: 'var(--text-secondary)',
+    backgroundColor: 'var(--bg-secondary)',
     padding: '4px 10px',
     borderRadius: '6px',
   },
@@ -177,7 +177,7 @@ const styles = {
   tableLoading: {
     textAlign: 'center',
     padding: '40px 0',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
     fontSize: '14px',
   },
   table: {
@@ -193,7 +193,7 @@ const styles = {
     padding: '12px 16px',
     fontSize: '11px',
     fontWeight: '600',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
     textTransform: 'uppercase',
     letterSpacing: '0.05em',
   },
@@ -223,18 +223,18 @@ const styles = {
   knmpName: {
     fontSize: '14px',
     fontWeight: '600',
-    color: '#F3F4F6',
+    color: 'var(--text-primary)',
   },
   tdMetric: {
     padding: '16px',
     fontSize: '14px',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
     fontFamily: 'monospace',
   },
   tdCc: {
     padding: '16px',
     fontSize: '14px',
-    color: '#00F2FE',
+    color: 'var(--color-primary)',
     fontFamily: 'monospace',
     fontWeight: '700',
   },

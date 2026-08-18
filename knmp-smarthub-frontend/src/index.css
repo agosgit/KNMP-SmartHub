@@ -69,6 +69,11 @@
   border-color: rgba(0, 0, 0, 0.15);
 }
 
+[data-theme='light'] .form-input:disabled {
+  background: #F3F4F6;
+  color: var(--text-muted);
+}
+
 [data-theme='light'] .btn-primary {
   color: #FFFFFF;
 }
