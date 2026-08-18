@@ -12,6 +12,9 @@ const operationalRoutes = require('./routes/operational.routes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Trust Nginx Reverse Proxy (Wajib untuk express-rate-limit)
+app.set('trust proxy', 1);
+
 // Middleware Keamanan & Optimasi Produksi
 app.use(helmet()); // Menyembunyikan header Express dan mengamankan HTTP headers
 app.use(compression()); // Melakukan GZIP compression pada response API
