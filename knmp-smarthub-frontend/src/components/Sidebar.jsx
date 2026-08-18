@@ -48,7 +48,7 @@ const Sidebar = () => {
         {/* Brand Header with Mobile Close Button */}
         <div className="sidebar-brand">
           <div className="sidebar-brand-content">
-            <Anchor size={28} color="#00F2FE" />
+            <Anchor size={28} color="var(--color-primary)" />
             <span className="sidebar-brand-text">
               KNMP <span className="sidebar-brand-highlight">SmartHub</span>
             </span>
@@ -79,7 +79,7 @@ const Sidebar = () => {
                 const Icon = item.icon;
                 return (
                   <>
-                    <Icon size={20} color={isActive ? '#00F2FE' : '#9CA3AF'} />
+                    <Icon size={20} color={isActive ? 'var(--color-primary)' : 'var(--text-secondary)'} />
                     <span>{item.name}</span>
                   </>
                 );
@@ -93,7 +93,7 @@ const Sidebar = () => {
           <div className="sidebar-user-profile">
             <div className="sidebar-user-avatar-row">
               <div className="sidebar-avatar">
-                <UserIcon size={20} color="#F3F4F6" />
+                <UserIcon size={20} color="var(--text-primary)" />
               </div>
               <div className="sidebar-user-info">
                 <span className="sidebar-user-name">{user.name}</span>

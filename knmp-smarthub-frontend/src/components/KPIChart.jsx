@@ -38,23 +38,23 @@ const KPIChart = ({ data }) => {
       <div style={styles.chartContainer}>
         <ResponsiveContainer width="100%" height={260}>
           <RadarChart cx="50%" cy="50%" r="80%" data={data}>
-            <PolarGrid stroke="rgba(255, 255, 255, 0.05)" />
+            <PolarGrid stroke="var(--border-color)" />
             <PolarAngleAxis 
               dataKey="subject" 
-              tick={{ fill: '#9CA3AF', fontSize: 11, fontWeight: 500 }}
+              tick={{ fill: 'var(--text-secondary)', fontSize: 11, fontWeight: 500 }}
             />
             <PolarRadiusAxis 
               angle={30} 
               domain={[0, 100]} 
-              tick={{ fill: '#6B7280', fontSize: 10 }}
-              stroke="rgba(255, 255, 255, 0.05)"
+              tick={{ fill: 'var(--text-muted)', fontSize: 10 }}
+              stroke="var(--border-color)"
             />
             <Radar
               name="Skor KPI"
               dataKey="A"
-              stroke="#00F2FE"
-              fill="rgba(0, 242, 254, 0.2)"
-              fillOpacity={0.6}
+              stroke="var(--color-primary)"
+              fill="var(--color-primary)"
+              fillOpacity={0.2}
             />
             <Tooltip content={<CustomTooltip />} />
           </RadarChart>
@@ -72,12 +72,12 @@ const styles = {
   },
   title: {
     fontSize: '16px',
-    color: '#F3F4F6',
+    color: 'var(--text-primary)',
     marginBottom: '4px',
   },
   subtitle: {
     fontSize: '12px',
-    color: '#6B7280',
+    color: 'var(--text-muted)',
     marginBottom: '16px',
   },
   chartContainer: {
@@ -87,8 +87,8 @@ const styles = {
     justifyContent: 'center',
   },
   tooltip: {
-    backgroundColor: '#0F131D',
-    border: '1px solid rgba(255, 255, 255, 0.08)',
+    backgroundColor: 'var(--bg-secondary)',
+    border: '1px solid var(--border-color)',
     padding: '10px 14px',
     borderRadius: '10px',
     boxShadow: '0 10px 20px -5px rgba(0,0,0,0.5)',
@@ -96,15 +96,15 @@ const styles = {
   tooltipLabel: {
     fontSize: '12px',
     fontWeight: '600',
-    color: '#F3F4F6',
+    color: 'var(--text-primary)',
     marginBottom: '4px',
   },
   tooltipValue: {
     fontSize: '12px',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
   },
   highlight: {
-    color: '#00F2FE',
+    color: 'var(--color-primary)',
     fontWeight: '700',
   },
 };

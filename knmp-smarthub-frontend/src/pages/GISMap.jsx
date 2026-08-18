@@ -176,7 +176,7 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     gap: '12px',
-    backgroundColor: 'rgba(255, 255, 255, 0.01)',
+    backgroundColor: 'var(--bg-secondary)',
   },
   infoHeader: {
     display: 'flex',
@@ -186,7 +186,7 @@ const styles = {
   infoTitle: {
     fontSize: '13px',
     fontWeight: '700',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
     textTransform: 'uppercase',
     letterSpacing: '0.05em',
   },
@@ -204,11 +204,11 @@ const styles = {
     width: '12px',
     height: '12px',
     borderRadius: '50%',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
+    border: '1px solid var(--border-color)',
   },
   legendLabel: {
     fontSize: '13px',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
     fontWeight: '500',
   },
   mapCard: {
@@ -222,7 +222,7 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     gap: '16px',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
   },
   loadingText: {
     fontSize: '14px',
@@ -242,12 +242,12 @@ const styles = {
   popupTitle: {
     fontSize: '14px',
     fontWeight: '700',
-    color: '#F3F4F6',
+    color: 'var(--text-primary)',
     margin: '0',
   },
   popupRegion: {
     fontSize: '11px',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
     margin: '0',
     marginTop: '-4px',
   },
@@ -255,8 +255,8 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     gap: '6px',
-    borderTop: '1px solid rgba(255, 255, 255, 0.05)',
-    borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+    borderTop: '1px solid var(--border-color)',
+    borderBottom: '1px solid var(--border-color)',
     padding: '8px 0',
   },
   metricRow: {
@@ -266,7 +266,7 @@ const styles = {
   },
   metricLabel: {
     fontSize: '12px',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
   },
   metricValue: {
     fontSize: '12px',

@@ -45,7 +45,7 @@ const HealthIndexCard = ({ score, status, title = 'KNMP Health Index' }) => {
               cy="60"
               r={radius}
               fill="transparent"
-              stroke="rgba(255, 255, 255, 0.03)"
+              stroke="var(--bg-secondary)"
               strokeWidth="10"
             />
             {/* Colored Active Circle */}
@@ -96,7 +96,7 @@ const styles = {
   },
   cardTitle: {
     fontSize: '16px',
-    color: '#F3F4F6',
+    color: 'var(--text-primary)',
   },
   cardContent: {
     display: 'flex',
@@ -129,7 +129,7 @@ const styles = {
   },
   scoreMax: {
     fontSize: '10px',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
     marginTop: '2px',
     fontWeight: '600',
   },
@@ -141,7 +141,7 @@ const styles = {
   },
   statusLabel: {
     fontSize: '12px',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
     fontWeight: '500',
   },
   statusValue: {
@@ -152,7 +152,7 @@ const styles = {
   },
   infoText: {
     fontSize: '12px',
-    color: '#6B7280',
+    color: 'var(--text-muted)',
     lineHeight: '1.4',
     marginTop: '6px',
   },
