@@ -85,9 +85,9 @@ const Rankings = () => {
                     <td>
                       <span style={{
                         ...styles.rankCircle,
-                        backgroundColor: item.ranking <= 2 ? 'rgba(239, 68, 68, 0.2)' : (item.ranking === 3 ? 'rgba(245, 175, 25, 0.2)' : 'rgba(255, 255, 255, 0.05)'),
-                        color: item.ranking <= 2 ? '#EF4444' : (item.ranking === 3 ? '#F5AF19' : '#F3F4F6'),
-                        borderColor: item.ranking <= 2 ? '#EF4444' : (item.ranking === 3 ? '#F5AF19' : 'rgba(255, 255, 255, 0.1)')
+                        backgroundColor: item.ranking <= 2 ? 'rgba(239, 68, 68, 0.2)' : (item.ranking === 3 ? 'rgba(245, 175, 25, 0.2)' : 'var(--bg-secondary)'),
+                        color: item.ranking <= 2 ? '#EF4444' : (item.ranking === 3 ? '#F5AF19' : 'var(--text-secondary)'),
+                        borderColor: item.ranking <= 2 ? '#EF4444' : (item.ranking === 3 ? '#F5AF19' : 'var(--border-color)')
                       }}>
                         {item.ranking}
                       </span>
@@ -187,7 +187,7 @@ const styles = {
     textAlign: 'left',
   },
   tr: {
-    borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+    borderBottom: '1px solid var(--border-color)',
   },
   th: {
     padding: '12px 16px',
@@ -203,10 +203,10 @@ const styles = {
     gap: '6px',
   },
   trBody: {
-    borderBottom: '1px solid rgba(255, 255, 255, 0.03)',
+    borderBottom: '1px solid var(--border-color)',
     transition: 'background-color 0.2s ease',
     ':hover': {
-      backgroundColor: 'rgba(255, 255, 255, 0.01)',
+      backgroundColor: 'var(--bg-secondary)',
     }
   },
   rankCircle: {

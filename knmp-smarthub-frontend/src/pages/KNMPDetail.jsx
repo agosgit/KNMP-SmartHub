@@ -226,8 +226,8 @@ const styles = {
     justifyContent: 'center',
     minHeight: '100vh',
     width: '100vw',
-    backgroundColor: '#080B11',
-    color: '#00F2FE',
+    backgroundColor: 'var(--bg-primary)',
+    color: 'var(--color-primary)',
     fontSize: '16px',
     fontWeight: '600',
   },
@@ -240,9 +240,9 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    backgroundColor: 'rgba(255,255,255,0.03)',
-    border: '1px solid rgba(255,255,255,0.06)',
-    color: '#9CA3AF',
+    backgroundColor: 'var(--bg-card)',
+    border: '1px solid var(--border-color)',
+    color: 'var(--text-secondary)',
     fontSize: '13px',
     fontWeight: '600',
     padding: '8px 14px',
@@ -253,9 +253,9 @@ const styles = {
   locationMeta: {
     fontSize: '12px',
     fontWeight: '600',
-    color: '#00F2FE',
-    backgroundColor: 'rgba(0,242,254,0.06)',
-    border: '1px solid rgba(0,242,254,0.15)',
+    color: 'var(--color-primary)',
+    backgroundColor: 'var(--border-glow)',
+    border: '1px solid var(--color-primary)',
     padding: '4px 10px',
     borderRadius: '6px',
   },
@@ -267,7 +267,7 @@ const styles = {
   },
   addressText: {
     fontSize: '13px',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
   },
   twoColumnGrid: {
     display: 'grid',
@@ -276,11 +276,11 @@ const styles = {
   },
   cardTitle: {
     fontSize: '15px',
-    color: '#F3F4F6',
+    color: 'var(--text-primary)',
   },
   cardSubtitle: {
     fontSize: '12px',
-    color: '#6B7280',
+    color: 'var(--text-muted)',
     marginTop: '4px',
     marginBottom: '20px',
   },
@@ -308,7 +308,7 @@ const styles = {
   warnTitle: {
     fontSize: '13px',
     fontWeight: '700',
-    color: '#F3F4F6',
+    color: 'var(--text-primary)',
   },
   warnScore: {
     fontSize: '12px',
@@ -317,7 +317,7 @@ const styles = {
   },
   warnDesc: {
     fontSize: '12px',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
     marginTop: '6px',
     lineHeight: '1.4',
   },
@@ -327,8 +327,8 @@ const styles = {
     gap: '12px',
   },
   recItem: {
-    backgroundColor: 'rgba(0, 242, 254, 0.03)',
-    border: '1px solid rgba(0, 242, 254, 0.1)',
+    backgroundColor: 'var(--bg-card)',
+    border: '1px solid var(--border-color)',
     borderRadius: '10px',
     padding: '12px 14px',
     display: 'flex',
@@ -338,8 +338,8 @@ const styles = {
   recBadge: {
     fontSize: '10px',
     fontWeight: '700',
-    color: '#00F2FE',
-    backgroundColor: 'rgba(0, 242, 254, 0.08)',
+    color: 'var(--color-primary)',
+    backgroundColor: 'var(--border-glow)',
     padding: '2px 8px',
     borderRadius: '4px',
     alignSelf: 'flex-start',
@@ -347,7 +347,7 @@ const styles = {
   },
   recAction: {
     fontSize: '12px',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
     lineHeight: '1.4',
   },
   emptyState: {
@@ -360,7 +360,7 @@ const styles = {
   },
   emptyText: {
     fontSize: '13px',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
     maxWidth: '280px',
     lineHeight: '1.4',
   },
@@ -374,34 +374,34 @@ const styles = {
     textAlign: 'left',
   },
   tr: {
-    borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+    borderBottom: '1px solid var(--border-color)',
   },
   th: {
     padding: '10px 12px',
     fontSize: '11px',
     fontWeight: '600',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
     textTransform: 'uppercase',
   },
   trBody: {
-    borderBottom: '1px solid rgba(255, 255, 255, 0.02)',
+    borderBottom: '1px solid var(--border-color)',
   },
   tdName: {
     padding: '12px',
     fontSize: '13px',
     fontWeight: '600',
-    color: '#F3F4F6',
+    color: 'var(--text-primary)',
   },
   tdType: {
     padding: '12px',
     fontSize: '12px',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
     textTransform: 'capitalize',
   },
   tdCapacity: {
     padding: '12px',
     fontSize: '12px',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
   },
   reportsWrapper: {
     display: 'flex',
@@ -412,8 +412,8 @@ const styles = {
     paddingRight: '4px',
   },
   reportCard: {
-    backgroundColor: 'rgba(255,255,255,0.02)',
-    border: '1px solid rgba(255,255,255,0.05)',
+    backgroundColor: 'var(--bg-secondary)',
+    border: '1px solid var(--border-color)',
     borderRadius: '10px',
     padding: '14px',
     display: 'flex',
@@ -428,18 +428,18 @@ const styles = {
   reportTitle: {
     fontSize: '13px',
     fontWeight: '700',
-    color: '#F3F4F6',
+    color: 'var(--text-primary)',
   },
   reportNotes: {
     fontSize: '12px',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
     lineHeight: '1.4',
   },
   reportMeta: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderTop: '1px solid rgba(255,255,255,0.03)',
+    borderTop: '1px solid var(--border-color)',
     paddingTop: '8px',
     marginTop: '4px',
   },
@@ -448,11 +448,11 @@ const styles = {
     alignItems: 'center',
     gap: '4px',
     fontSize: '11px',
-    color: '#6B7280',
+    color: 'var(--text-muted)',
   },
   metaReporter: {
     fontSize: '11px',
-    color: '#6B7280',
+    color: 'var(--text-muted)',
   },
 };
 

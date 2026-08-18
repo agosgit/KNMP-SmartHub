@@ -153,9 +153,9 @@ const Dashboard = () => {
                   <td style={styles.tdRank}>
                     <span style={{
                       ...styles.rankCircle,
-                      backgroundColor: rank.ranking === 1 ? 'rgba(239, 68, 68, 0.2)' : (rank.ranking === 2 ? 'rgba(245, 175, 25, 0.2)' : 'rgba(255, 255, 255, 0.05)'),
-                      color: rank.ranking === 1 ? '#EF4444' : (rank.ranking === 2 ? '#F5AF19' : '#F3F4F6'),
-                      borderColor: rank.ranking === 1 ? '#EF4444' : (rank.ranking === 2 ? '#F5AF19' : 'rgba(255, 255, 255, 0.1)')
+                      backgroundColor: rank.ranking === 1 ? 'rgba(239, 68, 68, 0.2)' : (rank.ranking === 2 ? 'rgba(245, 175, 25, 0.2)' : 'var(--bg-secondary)'),
+                      color: rank.ranking === 1 ? '#EF4444' : (rank.ranking === 2 ? '#F5AF19' : 'var(--text-secondary)'),
+                      borderColor: rank.ranking === 1 ? '#EF4444' : (rank.ranking === 2 ? '#F5AF19' : 'var(--border-color)')
                     }}>
                       {rank.ranking}
                     </span>
@@ -195,14 +195,14 @@ const styles = {
     justifyContent: 'center',
     minHeight: '100vh',
     width: '100vw',
-    backgroundColor: '#080B11',
+    backgroundColor: 'var(--bg-primary)',
     gap: '20px',
   },
   loadingText: {
     fontFamily: "'Outfit', sans-serif",
     fontSize: '18px',
     fontWeight: '600',
-    color: '#00F2FE',
+    color: 'var(--color-primary)',
   },
   summaryGrid: {
     display: 'grid',
@@ -219,8 +219,8 @@ const styles = {
     width: '48px',
     height: '48px',
     borderRadius: '12px',
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
-    border: '1px solid rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'var(--bg-secondary)',
+    border: '1px solid var(--border-color)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -228,7 +228,7 @@ const styles = {
   },
   statLabel: {
     fontSize: '11px',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
     fontWeight: '500',
     display: 'block',
     textTransform: 'uppercase',
@@ -238,17 +238,17 @@ const styles = {
     fontFamily: "'Outfit', sans-serif",
     fontSize: '26px',
     fontWeight: '800',
-    color: '#F3F4F6',
+    color: 'var(--text-primary)',
     marginTop: '2px',
   },
   statMax: {
     fontSize: '14px',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
     fontWeight: '500',
   },
   statSubText: {
     fontSize: '11px',
-    color: '#6B7280',
+    color: 'var(--text-muted)',
     marginTop: '2px',
   },
   rowTwoGrid: {
@@ -270,24 +270,24 @@ const styles = {
   },
   sectionTitle: {
     fontSize: '16px',
-    color: '#F3F4F6',
+    color: 'var(--text-primary)',
   },
   sectionSubtitle: {
     fontSize: '12px',
-    color: '#6B7280',
+    color: 'var(--text-muted)',
     marginTop: '4px',
   },
   viewMoreBtn: {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    color: '#00F2FE',
+    color: 'var(--color-primary)',
     fontSize: '13px',
     fontWeight: '600',
     padding: '8px 12px',
     borderRadius: '8px',
-    backgroundColor: 'rgba(0, 242, 254, 0.03)',
-    border: '1px solid rgba(0, 242, 254, 0.1)',
+    backgroundColor: 'var(--bg-card)',
+    border: '1px solid var(--border-color)',
     whiteSpace: 'nowrap',
   },
   tableWrapper: {
@@ -302,20 +302,20 @@ const styles = {
     textAlign: 'left',
   },
   tr: {
-    borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+    borderBottom: '1px solid var(--border-color)',
   },
   th: {
     padding: '12px 16px',
     fontSize: '12px',
     fontWeight: '600',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
     textTransform: 'uppercase',
   },
   trBody: {
-    borderBottom: '1px solid rgba(255, 255, 255, 0.03)',
+    borderBottom: '1px solid var(--border-color)',
     transition: 'background-color 0.2s ease',
     ':hover': {
-      backgroundColor: 'rgba(255, 255, 255, 0.01)',
+      backgroundColor: 'var(--bg-secondary)',
     }
   },
   tdRank: {
@@ -338,12 +338,12 @@ const styles = {
   knmpNameText: {
     fontSize: '14px',
     fontWeight: '600',
-    color: '#F3F4F6',
+    color: 'var(--text-primary)',
   },
   tdCc: {
     padding: '16px',
     fontSize: '14px',
-    color: '#F3F4F6',
+    color: 'var(--text-primary)',
     fontFamily: 'monospace',
     fontWeight: '600',
   },
@@ -354,10 +354,10 @@ const styles = {
     padding: '16px',
   },
   detailBtn: {
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
-    border: '1px solid rgba(255, 255, 255, 0.06)',
+    backgroundColor: 'var(--bg-card)',
+    border: '1px solid var(--border-color)',
     borderRadius: '8px',
-    color: '#F3F4F6',
+    color: 'var(--text-primary)',
     fontSize: '12px',
     fontWeight: '600',
     padding: '8px 14px',
@@ -365,8 +365,8 @@ const styles = {
     transition: 'all 0.2s ease',
     outline: 'none',
     ':hover': {
-      backgroundColor: 'rgba(255, 255, 255, 0.06)',
-      borderColor: 'rgba(255, 255, 255, 0.12)',
+      backgroundColor: 'var(--bg-secondary)',
+      borderColor: 'var(--color-primary)',
     }
   },
 };
