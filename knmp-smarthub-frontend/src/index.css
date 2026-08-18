@@ -64,6 +64,15 @@
   --color-critical-glow: rgba(220, 38, 38, 0.15);
 }
 
+[data-theme='light'] .form-input {
+  background: #FFFFFF;
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+[data-theme='light'] .btn-primary {
+  color: #FFFFFF;
+}
+
 /* Base Styles */
 * {
   box-sizing: border-box;

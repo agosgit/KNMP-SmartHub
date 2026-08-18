@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAppStore from '../store/useAppStore';
 import API from '../services/api';
-import { Anchor, Mail, Lock, Loader2 } from 'lucide-react';
+import { Anchor, Mail, Lock, Loader2, Sun, Moon } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAppStore();
+  const { login, theme, toggleTheme } = useAppStore();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -37,6 +37,15 @@ const Login = () => {
 
   return (
     <div style={styles.container}>
+      {/* Theme Toggle for Login Page */}
+      <button 
+        onClick={toggleTheme} 
+        style={styles.themeToggle}
+        title={theme === 'dark' ? "Beralih ke Mode Terang" : "Beralih ke Mode Gelap"}
+      >
+        {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+      </button>
+
       <div className="glass-card" style={styles.loginCard}>
         {/* Logo and Brand */}
         <div style={styles.brandContainer}>
@@ -110,6 +119,22 @@ const styles = {
     backgroundColor: 'var(--bg-primary)',
     background: 'radial-gradient(circle at center, var(--bg-secondary) 0%, var(--bg-primary) 100%)',
     padding: '20px',
+    position: 'relative',
+  },
+  themeToggle: {
+    position: 'absolute',
+    top: '20px',
+    right: '20px',
+    background: 'transparent',
+    border: 'none',
+    color: 'var(--text-primary)',
+    cursor: 'pointer',
+    padding: '10px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: '50%',
+    transition: 'all 0.2s',
   },
   loginCard: {
     width: '100%',
