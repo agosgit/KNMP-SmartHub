@@ -1,6 +1,9 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const compression = require('compression');
+const rateLimit = require('express-rate-limit');
 
 const authRoutes = require('./routes/auth.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
@@ -9,8 +12,31 @@ const operationalRoutes = require('./routes/operational.routes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors());
+// Middleware Keamanan & Optimasi Produksi
+app.use(helmet()); // Menyembunyikan header Express dan mengamankan HTTP headers
+app.use(compression()); // Melakukan GZIP compression pada response API
+
+// Konfigurasi CORS ketat untuk Production
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://knmpsmarthub.cloud', 'https://www.knmpsmarthub.cloud'] 
+    : '*', // Izinkan semua di development
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+  optionsSuccessStatus: 204
+};
+app.use(cors(corsOptions));
+
+// Rate Limiting (Mencegah Spam/DDoS/Brute Force)
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 menit
+  max: 100, // Batasi setiap IP maksimal 100 request per windowMs
+  message: {
+    message: 'Terlalu banyak permintaan dari IP ini, coba lagi dalam 15 menit.'
+  }
+});
+app.use('/api/', limiter);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
