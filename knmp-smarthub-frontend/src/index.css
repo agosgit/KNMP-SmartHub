@@ -36,6 +36,34 @@
   --sidebar-width: 260px;
 }
 
+[data-theme='light'] {
+  /* Color Palette - Light Professional Theme */
+  --bg-primary: #F3F4F6; /* Light gray background */
+  --bg-secondary: #FFFFFF; /* Pure white sidebar/cards */
+  --bg-card: rgba(255, 255, 255, 0.9);
+  --bg-card-hover: rgba(249, 250, 251, 1);
+  
+  --border-color: rgba(0, 0, 0, 0.08);
+  --border-glow: rgba(0, 242, 254, 0.2);
+  
+  --text-primary: #111827; /* Dark slate text */
+  --text-secondary: #4B5563; /* Medium gray */
+  --text-muted: #9CA3AF;
+  
+  /* Brand/Status Accents */
+  --color-primary: #0284C7; /* Darker Cyan/Blue for better contrast on white */
+  --color-secondary: #0369A1;
+  
+  --color-success: #059669; /* Darker Emerald */
+  --color-success-glow: rgba(5, 150, 105, 0.15);
+  
+  --color-warning: #D97706; /* Darker Amber */
+  --color-warning-glow: rgba(217, 119, 6, 0.15);
+  
+  --color-critical: #DC2626; /* Darker Rose Red */
+  --color-critical-glow: rgba(220, 38, 38, 0.15);
+}
+
 /* Base Styles */
 * {
   box-sizing: border-box;

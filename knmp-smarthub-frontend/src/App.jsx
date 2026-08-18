@@ -31,6 +31,12 @@ const ProtectedRoute = () => {
 };
 
 function App() {
+  const { theme } = useAppStore();
+
+  React.useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
   return (
     <Router>
       <Toaster 

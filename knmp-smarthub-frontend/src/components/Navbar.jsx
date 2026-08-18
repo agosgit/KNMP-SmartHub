@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import useAppStore from '../store/useAppStore';
 import API from '../services/api';
-import { RefreshCw, Clock, Menu } from 'lucide-react';
+import { RefreshCw, Clock, Menu, Sun, Moon } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const Navbar = ({ title }) => {
-  const { user, toggleSidebar } = useAppStore();
+  const { user, toggleSidebar, theme, toggleTheme } = useAppStore();
   const [loading, setLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState(new Date().toLocaleTimeString());
 
@@ -38,7 +38,7 @@ const Navbar = ({ title }) => {
           onClick={toggleSidebar}
           aria-label="Buka Menu"
         >
-          <Menu size={22} color="#00F2FE" />
+          <Menu size={22} color="var(--color-primary)" />
         </button>
 
         <div className="navbar-title-group">
@@ -49,9 +49,30 @@ const Navbar = ({ title }) => {
 
       {/* Right side: Action Buttons & Status */}
       <div className="navbar-actions">
+        {/* Theme Toggle */}
+        <button 
+          onClick={toggleTheme} 
+          className="navbar-theme-btn"
+          aria-label="Toggle Theme"
+          title={theme === 'dark' ? "Beralih ke Mode Terang" : "Beralih ke Mode Gelap"}
+          style={{
+            background: 'transparent', 
+            border: 'none', 
+            cursor: 'pointer', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            padding: '6px',
+            borderRadius: '50%',
+            color: 'var(--text-primary)'
+          }}
+        >
+          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+        </button>
+
         {/* Last updated indicator */}
         <div className="navbar-timestamp">
-          <Clock size={14} color="#9CA3AF" />
+          <Clock size={14} color="var(--text-secondary)" />
           <span className="navbar-timestamp-text">Sinkronisasi: {lastUpdate}</span>
         </div>
 

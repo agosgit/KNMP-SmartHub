@@ -41,7 +41,7 @@ const Login = () => {
         {/* Logo and Brand */}
         <div style={styles.brandContainer}>
           <div style={styles.logoCircle}>
-            <Anchor size={36} color="#00F2FE" />
+            <Anchor size={36} color="var(--color-primary)" />
           </div>
           <h2 style={styles.brandName}>KNMP <span style={styles.brandHighlight}>SmartHub</span></h2>
           <p style={styles.brandSub}>Government Decision Intelligence Platform</p>
@@ -53,7 +53,7 @@ const Login = () => {
           <div style={styles.inputGroup}>
             <label style={styles.label}>Email Instansi / Petugas</label>
             <div style={styles.inputWrapper}>
-              <Mail size={18} color="#6B7280" style={styles.inputIcon} />
+              <Mail size={18} color="var(--text-muted)" style={styles.inputIcon} />
               <input
                 type="email"
                 placeholder="nama@smarthub.go.id"
@@ -70,7 +70,7 @@ const Login = () => {
           <div style={styles.inputGroup}>
             <label style={styles.label}>Password</label>
             <div style={styles.inputWrapper}>
-              <Lock size={18} color="#6B7280" style={styles.inputIcon} />
+              <Lock size={18} color="var(--text-muted)" style={styles.inputIcon} />
               <input
                 type="password"
                 placeholder="••••••••"
@@ -107,8 +107,8 @@ const styles = {
     justifyContent: 'center',
     minHeight: '100vh',
     width: '100vw',
-    backgroundColor: '#080B11',
-    background: 'radial-gradient(circle at center, #111827 0%, #080B11 100%)',
+    backgroundColor: 'var(--bg-primary)',
+    background: 'radial-gradient(circle at center, var(--bg-secondary) 0%, var(--bg-primary) 100%)',
     padding: '20px',
   },
   loginCard: {
@@ -128,26 +128,26 @@ const styles = {
     width: '72px',
     height: '72px',
     borderRadius: '50%',
-    backgroundColor: 'rgba(0, 242, 254, 0.05)',
-    border: '1px solid rgba(0, 242, 254, 0.2)',
+    backgroundColor: 'var(--border-glow)',
+    border: '1px solid var(--border-glow)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: '16px',
-    boxShadow: '0 0 15px 0 rgba(0, 242, 254, 0.1)',
+    boxShadow: '0 0 15px 0 var(--border-glow)',
   },
   brandName: {
     fontFamily: "'Outfit', sans-serif",
     fontSize: '24px',
     fontWeight: '800',
-    color: '#F3F4F6',
+    color: 'var(--text-primary)',
   },
   brandHighlight: {
-    color: '#00F2FE',
+    color: 'var(--color-primary)',
   },
   brandSub: {
     fontSize: '11px',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
     textTransform: 'uppercase',
     letterSpacing: '0.05em',
     marginTop: '6px',
@@ -166,7 +166,7 @@ const styles = {
   label: {
     fontSize: '12px',
     fontWeight: '600',
-    color: '#9CA3AF',
+    color: 'var(--text-secondary)',
   },
   inputWrapper: {
     position: 'relative',

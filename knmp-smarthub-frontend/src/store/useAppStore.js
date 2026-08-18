@@ -5,6 +5,13 @@ const useAppStore = create((set) => ({
   user: JSON.parse(localStorage.getItem('knmp_user')) || null,
   isAuthenticated: !!localStorage.getItem('knmp_token'),
   isSidebarOpen: false,
+  theme: localStorage.getItem('knmp_theme') || 'dark',
+
+  toggleTheme: () => set((state) => {
+    const newTheme = state.theme === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('knmp_theme', newTheme);
+    return { theme: newTheme };
+  }),
 
   toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
   closeSidebar: () => set({ isSidebarOpen: false }),
