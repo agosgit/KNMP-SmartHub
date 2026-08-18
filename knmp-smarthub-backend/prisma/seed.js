@@ -122,7 +122,9 @@ async function main() {
     },
   });
 
-  let tpiUser; // save one reference for later mock data usage
+  let tpiUser;
+  let koperasiUser;
+  let penyuluhUser;
   for (const knmp of knmpInstances) {
     const baseName = knmp.name.replace('KNMP ', '').toLowerCase().replace(/\s+/g, '');
     
@@ -136,10 +138,9 @@ async function main() {
       },
     });
     
-    // Simpan referensi TPI pertama untuk dipakai saat membuat mock data operasional
     if (!tpiUser) tpiUser = tpi;
 
-    await prisma.user.create({
+    const koperasi = await prisma.user.create({
       data: {
         email: `kop.${baseName}@smarthub.go.id`,
         name: `Koperasi - ${knmp.name.replace('KNMP ', '')}`,
@@ -148,8 +149,10 @@ async function main() {
         knmpId: knmp.id
       },
     });
+    
+    if (!koperasiUser) koperasiUser = koperasi;
 
-    await prisma.user.create({
+    const penyuluh = await prisma.user.create({
       data: {
         email: `pen.${baseName}@smarthub.go.id`,
         name: `Penyuluh - ${knmp.name.replace('KNMP ', '')}`,
@@ -158,6 +161,8 @@ async function main() {
         knmpId: knmp.id
       },
     });
+    
+    if (!penyuluhUser) penyuluhUser = penyuluh;
   }
 
   console.log('Created Users with Relational Links.');
