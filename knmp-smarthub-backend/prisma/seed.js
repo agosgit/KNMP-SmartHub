@@ -122,35 +122,43 @@ async function main() {
     },
   });
 
-  const tpiUser = await prisma.user.create({
-    data: {
-      email: 'tpi@smarthub.go.id',
-      name: 'Agus Tri Sucipto',
-      password: hashedPassword,
-      role: 'TPI',
-      knmpId: knmpInstances[0].id // Link to Muara Baru
-    },
-  });
+  let tpiUser; // save one reference for later mock data usage
+  for (const knmp of knmpInstances) {
+    const baseName = knmp.name.replace('KNMP ', '').toLowerCase().replace(/\s+/g, '');
+    
+    const tpi = await prisma.user.create({
+      data: {
+        email: `tpi.${baseName}@smarthub.go.id`,
+        name: `Petugas TPI - ${knmp.name.replace('KNMP ', '')}`,
+        password: hashedPassword,
+        role: 'TPI',
+        knmpId: knmp.id
+      },
+    });
+    
+    // Simpan referensi TPI pertama untuk dipakai saat membuat mock data operasional
+    if (!tpiUser) tpiUser = tpi;
 
-  const koperasiUser = await prisma.user.create({
-    data: {
-      email: 'koperasi@smarthub.go.id',
-      name: 'Bambang Pamungkas',
-      password: hashedPassword,
-      role: 'KOPERASI',
-      knmpId: knmpInstances[0].id // Link to Muara Baru
-    },
-  });
+    await prisma.user.create({
+      data: {
+        email: `kop.${baseName}@smarthub.go.id`,
+        name: `Koperasi - ${knmp.name.replace('KNMP ', '')}`,
+        password: hashedPassword,
+        role: 'KOPERASI',
+        knmpId: knmp.id
+      },
+    });
 
-  const penyuluhUser = await prisma.user.create({
-    data: {
-      email: 'penyuluh@smarthub.go.id',
-      name: 'Siti Aminah',
-      password: hashedPassword,
-      role: 'PENYULUH',
-      knmpId: knmpInstances[1].id // Link to Brondong
-    },
-  });
+    await prisma.user.create({
+      data: {
+        email: `pen.${baseName}@smarthub.go.id`,
+        name: `Penyuluh - ${knmp.name.replace('KNMP ', '')}`,
+        password: hashedPassword,
+        role: 'PENYULUH',
+        knmpId: knmp.id
+      },
+    });
+  }
 
   console.log('Created Users with Relational Links.');
 
