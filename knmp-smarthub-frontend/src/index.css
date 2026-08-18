@@ -578,8 +578,17 @@ a {
 
   .main-content {
     margin-left: 0;
-    padding: 20px 16px;
+    padding: 0 16px 20px 16px; /* Removed top padding, moved to navbar */
     gap: 20px;
+  }
+
+  .app-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: var(--bg-primary);
+    padding: 16px 0;
+    margin-bottom: 0;
   }
 
   .glass-card {
