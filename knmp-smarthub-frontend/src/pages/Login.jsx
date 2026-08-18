@@ -12,6 +12,18 @@ const Login = () => {
   const { login } = useAppStore();
   const navigate = useNavigate();
 
+  const demoAccounts = [
+    { label: 'Admin Pusat', email: 'admin@smarthub.go.id', role: 'ADMIN', color: '#8B5CF6' },
+    { label: 'Pimpinan KKP', email: 'kkp@smarthub.go.id', role: 'KKP', color: '#3B82F6' },
+    { label: 'Petugas TPI (Muara Baru)', email: 'tpi@smarthub.go.id', role: 'TPI', color: '#10B981' },
+    { label: 'Penyuluh (Brondong)', email: 'penyuluh@smarthub.go.id', role: 'PENYULUH', color: '#F59E0B' },
+  ];
+
+  const handleDemoLogin = (demoEmail) => {
+    setEmail(demoEmail);
+    setPassword('password123');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) {
@@ -98,10 +110,21 @@ const Login = () => {
 
         {/* Footer info for demo credentials */}
         <div style={styles.demoCredentials}>
-          <span style={styles.demoTitle}>Akun Simulasi Demo:</span>
-          <div style={styles.demoDetails}>
-            <code>kkp@smarthub.go.id</code> / <code>password123</code> <span style={styles.roleTag}>(KKP)</span><br />
-            <code>admin@smarthub.go.id</code> / <code>password123</code> <span style={styles.roleTag}>(Admin)</span>
+          <span style={styles.demoTitle}>Pilih Akun Simulasi Demo:</span>
+          <div style={styles.demoGrid}>
+            {demoAccounts.map((acc, idx) => (
+              <button 
+                key={idx}
+                type="button"
+                onClick={() => handleDemoLogin(acc.email)}
+                style={{...styles.demoBtn, borderLeftColor: acc.color}}
+              >
+                <span style={styles.demoBtnLabel}>{acc.label}</span>
+                <span style={{...styles.demoBtnRole, color: acc.color}}>
+                  {acc.role}
+                </span>
+              </button>
+            ))}
           </div>
         </div>
       </div>
@@ -209,17 +232,34 @@ const styles = {
     marginBottom: '8px',
     textTransform: 'uppercase',
   },
-  demoDetails: {
-    fontSize: '12px',
-    color: '#6B7280',
-    lineHeight: '1.8',
+  demoGrid: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '10px',
   },
-  roleTag: {
-    color: '#00F2FE',
-    fontSize: '10px',
-    fontWeight: '700',
-    marginLeft: '4px',
+  demoBtn: {
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    borderLeftWidth: '3px',
+    borderRadius: '6px',
+    padding: '8px 10px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    cursor: 'pointer',
+    transition: 'all 0.2s',
+    textAlign: 'left',
   },
+  demoBtnLabel: {
+    fontSize: '11px',
+    color: '#D1D5DB',
+    fontWeight: '600',
+    marginBottom: '2px',
+  },
+  demoBtnRole: {
+    fontSize: '9px',
+    fontWeight: '800',
+  }
 };
 
 export default Login;
