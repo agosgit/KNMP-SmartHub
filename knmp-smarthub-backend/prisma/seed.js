@@ -28,64 +28,7 @@ async function main() {
 
   console.log('Cleaned up existing database tables.');
 
-  // 2. Create Users
-  const hashedPassword = await bcrypt.hash('password123', 10);
-  
-  const adminUser = await prisma.user.create({
-    data: {
-      email: 'admin@smarthub.go.id',
-      name: 'Administrator Pusat',
-      password: hashedPassword,
-      role: 'ADMIN',
-    },
-  });
-
-  const kkpUser = await prisma.user.create({
-    data: {
-      email: 'kkp@smarthub.go.id',
-      name: 'Direktorat Jenderal Perikanan KKP',
-      password: hashedPassword,
-      role: 'KKP',
-    },
-  });
-
-  const pemdaUser = await prisma.user.create({
-    data: {
-      email: 'pemda@smarthub.go.id',
-      name: 'Dinas Perikanan Provinsi',
-      password: hashedPassword,
-      role: 'PEMDA',
-    },
-  });
-
-  const tpiUser = await prisma.user.create({
-    data: {
-      email: 'tpi@smarthub.go.id',
-      name: 'Petugas TPI',
-      password: hashedPassword,
-      role: 'TPI',
-    },
-  });
-
-  const koperasiUser = await prisma.user.create({
-    data: {
-      email: 'koperasi@smarthub.go.id',
-      name: 'Koperasi Nelayan',
-      password: hashedPassword,
-      role: 'KOPERASI',
-    },
-  });
-
-  const penyuluhUser = await prisma.user.create({
-    data: {
-      email: 'penyuluh@smarthub.go.id',
-      name: 'Penyuluh Lapangan',
-      password: hashedPassword,
-      role: 'PENYULUH',
-    },
-  });
-
-  console.log('Created Users.');
+  // (Moved User Creation to after KNMP creation)
 
   // 3. Create Regions (Hierarchy)
   const dki = await prisma.region.create({
@@ -148,6 +91,68 @@ async function main() {
   }
 
   console.log('Created KNMP Locations.');
+
+  // 4b. Create Users (Now we can link to KNMP)
+  const hashedPassword = await bcrypt.hash('password123', 10);
+  
+  const adminUser = await prisma.user.create({
+    data: {
+      email: 'admin@smarthub.go.id',
+      name: 'Suhartono',
+      password: hashedPassword,
+      role: 'ADMIN',
+    },
+  });
+
+  const kkpUser = await prisma.user.create({
+    data: {
+      email: 'kkp@smarthub.go.id',
+      name: 'Budi Santoso',
+      password: hashedPassword,
+      role: 'KKP',
+    },
+  });
+
+  const pemdaUser = await prisma.user.create({
+    data: {
+      email: 'pemda@smarthub.go.id',
+      name: 'Haryanto',
+      password: hashedPassword,
+      role: 'PEMDA',
+    },
+  });
+
+  const tpiUser = await prisma.user.create({
+    data: {
+      email: 'tpi@smarthub.go.id',
+      name: 'Agus Tri Sucipto',
+      password: hashedPassword,
+      role: 'TPI',
+      knmpId: knmpInstances[0].id // Link to Muara Baru
+    },
+  });
+
+  const koperasiUser = await prisma.user.create({
+    data: {
+      email: 'koperasi@smarthub.go.id',
+      name: 'Bambang Pamungkas',
+      password: hashedPassword,
+      role: 'KOPERASI',
+      knmpId: knmpInstances[0].id // Link to Muara Baru
+    },
+  });
+
+  const penyuluhUser = await prisma.user.create({
+    data: {
+      email: 'penyuluh@smarthub.go.id',
+      name: 'Siti Aminah',
+      password: hashedPassword,
+      role: 'PENYULUH',
+      knmpId: knmpInstances[1].id // Link to Brondong
+    },
+  });
+
+  console.log('Created Users with Relational Links.');
 
   // 5. Create Facilities for each KNMP
   for (const knmp of knmpInstances) {

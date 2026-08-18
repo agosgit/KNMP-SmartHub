@@ -60,7 +60,8 @@ const login = async (req, res) => {
 
     // 2. Cari user berdasarkan email
     const user = await prisma.user.findUnique({
-      where: { email }
+      where: { email },
+      include: { knmp: true }
     });
 
     if (!user) {
@@ -87,7 +88,9 @@ const login = async (req, res) => {
         id: user.id,
         email: user.email,
         name: user.name,
-        role: user.role
+        role: user.role,
+        knmpId: user.knmpId,
+        knmp: user.knmp
       }
     });
   } catch (error) {

@@ -51,7 +51,11 @@ const OperationalInput = () => {
         const response = await API.get('/operational/knmps');
         setKnmps(response.data);
         if (response.data.length > 0) {
-          setKnmpId(response.data[0].id.toString());
+          if (user?.knmpId) {
+            setKnmpId(user.knmpId.toString());
+          } else {
+            setKnmpId(response.data[0].id.toString());
+          }
         }
       } catch (error) {
         toast.error('Gagal mengambil daftar lokasi KNMP.');
@@ -155,16 +159,24 @@ const OperationalInput = () => {
         {loadingKnmps ? (
           <div>Memuat lokasi...</div>
         ) : (
-          <select 
-            value={knmpId} 
-            onChange={(e) => setKnmpId(e.target.value)} 
-            className="form-input"
-            style={styles.dropdown}
-          >
-            {knmps.map(k => (
-              <option key={k.id} value={k.id}>{k.name} ({k.address})</option>
-            ))}
-          </select>
+          <>
+            <select 
+              value={knmpId} 
+              onChange={(e) => setKnmpId(e.target.value)} 
+              className="form-input"
+              style={styles.dropdown}
+              disabled={!!user?.knmpId}
+            >
+              {knmps.map(k => (
+                <option key={k.id} value={k.id}>{k.name} ({k.address})</option>
+              ))}
+            </select>
+            {user?.knmpId && (
+              <small style={{color: '#9CA3AF', marginTop: '4px'}}>
+                * Lokasi terkunci secara otomatis berdasarkan penempatan wilayah tugas Anda.
+              </small>
+            )}
+          </>
         )}
       </div>
 

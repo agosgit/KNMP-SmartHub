@@ -97,6 +97,9 @@ const Sidebar = () => {
               </div>
               <div className="sidebar-user-info">
                 <span className="sidebar-user-name">{user.name}</span>
+                <span className="sidebar-agency-name">
+                  {user.knmp ? `Wilayah: ${user.knmp.name}` : 'Pusat / Nasional'}
+                </span>
                 <span className={`status-badge ${user.role.toLowerCase()}`}>
                   {user.role}
                 </span>

@@ -38,6 +38,8 @@ model User {
   password          String
   name              String
   role              Role               @default(PENGELOLA)
+  knmpId            Int?
+  knmp              Knmp?              @relation(fields: [knmpId], references: [id])
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
   productions       FishProduction[]
@@ -76,6 +78,7 @@ model Knmp {
   healthIndices     HealthIndex[]
   topsisRankings    TopsisRanking[]
   monitoringReports MonitoringReport[]
+  users             User[]
 }
 
 model Facility {
