@@ -1,0 +1,409 @@
+const bcrypt = require('bcryptjs');
+const prisma = require('../lib/db');
+
+// ============================================================
+// USER MANAGEMENT
+// ============================================================
+
+// GET /admin/users — Daftar semua user
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        knmpId: true,
+        knmp: {
+          select: { id: true, name: true }
+        },
+        createdAt: true,
+        updatedAt: true
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    return res.json(users);
+  } catch (error) {
+    return res.status(500).json({ message: 'Gagal mengambil daftar user.', error: error.message });
+  }
+};
+
+// POST /admin/users — Buat user baru dari Admin Panel
+const createUser = async (req, res) => {
+  try {
+    const { email, password, name, role, knmpId } = req.body;
+
+    if (!email || !password || !name) {
+      return res.status(400).json({ message: 'Email, password, dan nama harus diisi.' });
+    }
+
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email sudah terdaftar.' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await prisma.user.create({
+      data: {
+        email,
+        name,
+        password: hashedPassword,
+        role: role || 'PENGELOLA',
+        knmpId: knmpId ? parseInt(knmpId) : null
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        knmpId: true,
+        knmp: { select: { id: true, name: true } },
+        createdAt: true
+      }
+    });
+
+    return res.status(201).json({
+      message: 'User baru berhasil dibuat.',
+      user
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'Gagal membuat user baru.', error: error.message });
+  }
+};
+
+// PUT /admin/users/:id/role — Update role & KNMP assignment user
+const updateUserRole = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { role, knmpId } = req.body;
+
+    if (isNaN(id)) {
+      return res.status(400).json({ message: 'ID user tidak valid.' });
+    }
+
+    // Jangan biarkan admin menghapus role dirinya sendiri
+    if (id === req.user.id) {
+      return res.status(400).json({ message: 'Tidak dapat mengubah role akun Anda sendiri.' });
+    }
+
+    const validRoles = ['ADMIN', 'PENGELOLA', 'TPI', 'KOPERASI', 'PENYULUH', 'PEMDA', 'KKP'];
+    if (role && !validRoles.includes(role)) {
+      return res.status(400).json({ message: 'Role tidak valid.' });
+    }
+
+    const updateData = {};
+    if (role) updateData.role = role;
+    if (knmpId !== undefined) updateData.knmpId = knmpId ? parseInt(knmpId) : null;
+
+    const user = await prisma.user.update({
+      where: { id },
+      data: updateData,
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        knmpId: true,
+        knmp: { select: { id: true, name: true } },
+        updatedAt: true
+      }
+    });
+
+    return res.json({
+      message: 'Data user berhasil diperbarui.',
+      user
+    });
+  } catch (error) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({ message: 'User tidak ditemukan.' });
+    }
+    return res.status(500).json({ message: 'Gagal mengubah data user.', error: error.message });
+  }
+};
+
+// DELETE /admin/users/:id — Hapus user
+const deleteUser = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+
+    if (isNaN(id)) {
+      return res.status(400).json({ message: 'ID user tidak valid.' });
+    }
+
+    // Jangan biarkan admin menghapus dirinya sendiri
+    if (id === req.user.id) {
+      return res.status(400).json({ message: 'Tidak dapat menghapus akun Anda sendiri.' });
+    }
+
+    await prisma.user.delete({ where: { id } });
+
+    return res.json({ message: 'User berhasil dihapus.' });
+  } catch (error) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({ message: 'User tidak ditemukan.' });
+    }
+    return res.status(500).json({ message: 'Gagal menghapus user.', error: error.message });
+  }
+};
+
+// ============================================================
+// KNMP MANAGEMENT
+// ============================================================
+
+// GET /admin/regions — Helper dropdown wilayah
+const getRegions = async (req, res) => {
+  try {
+    const regions = await prisma.region.findMany({
+      select: {
+        id: true,
+        name: true,
+        type: true,
+        parentId: true
+      },
+      orderBy: { name: 'asc' }
+    });
+
+    return res.json(regions);
+  } catch (error) {
+    return res.status(500).json({ message: 'Gagal mengambil daftar wilayah.', error: error.message });
+  }
+};
+
+// POST /admin/knmps — Tambah lokasi KNMP baru
+const createKnmp = async (req, res) => {
+  try {
+    const { name, address, latitude, longitude, regionId } = req.body;
+
+    if (!name || !address || latitude === undefined || longitude === undefined || !regionId) {
+      return res.status(400).json({ message: 'Nama, alamat, latitude, longitude, dan wilayah harus diisi.' });
+    }
+
+    const knmp = await prisma.knmp.create({
+      data: {
+        name,
+        address,
+        latitude: parseFloat(latitude),
+        longitude: parseFloat(longitude),
+        regionId: parseInt(regionId)
+      },
+      include: {
+        region: { select: { id: true, name: true } }
+      }
+    });
+
+    return res.status(201).json({
+      message: 'Lokasi KNMP baru berhasil ditambahkan.',
+      knmp
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'Gagal menambahkan lokasi KNMP.', error: error.message });
+  }
+};
+
+// PUT /admin/knmps/:id — Edit lokasi KNMP
+const updateKnmp = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { name, address, latitude, longitude, regionId, status } = req.body;
+
+    if (isNaN(id)) {
+      return res.status(400).json({ message: 'ID KNMP tidak valid.' });
+    }
+
+    const updateData = {};
+    if (name) updateData.name = name;
+    if (address) updateData.address = address;
+    if (latitude !== undefined) updateData.latitude = parseFloat(latitude);
+    if (longitude !== undefined) updateData.longitude = parseFloat(longitude);
+    if (regionId) updateData.regionId = parseInt(regionId);
+    if (status) updateData.status = status;
+
+    const knmp = await prisma.knmp.update({
+      where: { id },
+      data: updateData,
+      include: {
+        region: { select: { id: true, name: true } }
+      }
+    });
+
+    return res.json({
+      message: 'Data KNMP berhasil diperbarui.',
+      knmp
+    });
+  } catch (error) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({ message: 'Lokasi KNMP tidak ditemukan.' });
+    }
+    return res.status(500).json({ message: 'Gagal memperbarui data KNMP.', error: error.message });
+  }
+};
+
+// DELETE /admin/knmps/:id — Hapus lokasi KNMP dan data terkait
+const deleteKnmp = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+
+    if (isNaN(id)) {
+      return res.status(400).json({ message: 'ID KNMP tidak valid.' });
+    }
+
+    // Hapus data terkait terlebih dahulu (cascade manual)
+    await prisma.$transaction([
+      prisma.facility.deleteMany({ where: { knmpId: id } }),
+      prisma.fishProduction.deleteMany({ where: { knmpId: id } }),
+      prisma.fishDistribution.deleteMany({ where: { knmpId: id } }),
+      prisma.cooperative.deleteMany({ where: { knmpId: id } }),
+      prisma.kpiScore.deleteMany({ where: { knmpId: id } }),
+      prisma.healthIndex.deleteMany({ where: { knmpId: id } }),
+      prisma.topsisRanking.deleteMany({ where: { knmpId: id } }),
+      prisma.monitoringReport.deleteMany({ where: { knmpId: id } }),
+      prisma.user.updateMany({ where: { knmpId: id }, data: { knmpId: null } }),
+      prisma.knmp.delete({ where: { id } })
+    ]);
+
+    return res.json({ message: 'Lokasi KNMP dan seluruh data terkait berhasil dihapus.' });
+  } catch (error) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({ message: 'Lokasi KNMP tidak ditemukan.' });
+    }
+    return res.status(500).json({ message: 'Gagal menghapus lokasi KNMP.', error: error.message });
+  }
+};
+
+// ============================================================
+// FACILITY MANAGEMENT
+// ============================================================
+
+// GET /admin/facilities — Daftar semua fasilitas (dengan filter opsional per KNMP)
+const getAllFacilities = async (req, res) => {
+  try {
+    const { knmpId } = req.query;
+
+    const where = {};
+    if (knmpId) where.knmpId = parseInt(knmpId);
+
+    const facilities = await prisma.facility.findMany({
+      where,
+      include: {
+        knmp: {
+          select: { id: true, name: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    return res.json(facilities);
+  } catch (error) {
+    return res.status(500).json({ message: 'Gagal mengambil daftar fasilitas.', error: error.message });
+  }
+};
+
+// POST /admin/facilities — Tambah fasilitas baru
+const createFacility = async (req, res) => {
+  try {
+    const { knmpId, name, type, capacity, status } = req.body;
+
+    if (!knmpId || !name || !type || capacity === undefined) {
+      return res.status(400).json({ message: 'KNMP, nama, tipe, dan kapasitas harus diisi.' });
+    }
+
+    const validTypes = ['COLD_STORAGE', 'TPI', 'PABRIK_ES', 'DERMAGA', 'SPBN', 'LAINNYA'];
+    if (!validTypes.includes(type)) {
+      return res.status(400).json({ message: 'Tipe fasilitas tidak valid.' });
+    }
+
+    const facility = await prisma.facility.create({
+      data: {
+        knmpId: parseInt(knmpId),
+        name,
+        type,
+        capacity: parseFloat(capacity),
+        status: status || 'ACTIVE'
+      },
+      include: {
+        knmp: { select: { id: true, name: true } }
+      }
+    });
+
+    return res.status(201).json({
+      message: 'Fasilitas baru berhasil ditambahkan.',
+      facility
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'Gagal menambahkan fasilitas.', error: error.message });
+  }
+};
+
+// PUT /admin/facilities/:id — Edit fasilitas
+const updateFacility = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { name, type, capacity, status } = req.body;
+
+    if (isNaN(id)) {
+      return res.status(400).json({ message: 'ID fasilitas tidak valid.' });
+    }
+
+    const updateData = {};
+    if (name) updateData.name = name;
+    if (type) updateData.type = type;
+    if (capacity !== undefined) updateData.capacity = parseFloat(capacity);
+    if (status) updateData.status = status;
+
+    const facility = await prisma.facility.update({
+      where: { id },
+      data: updateData,
+      include: {
+        knmp: { select: { id: true, name: true } }
+      }
+    });
+
+    return res.json({
+      message: 'Data fasilitas berhasil diperbarui.',
+      facility
+    });
+  } catch (error) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({ message: 'Fasilitas tidak ditemukan.' });
+    }
+    return res.status(500).json({ message: 'Gagal memperbarui data fasilitas.', error: error.message });
+  }
+};
+
+// DELETE /admin/facilities/:id — Hapus fasilitas
+const deleteFacility = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+
+    if (isNaN(id)) {
+      return res.status(400).json({ message: 'ID fasilitas tidak valid.' });
+    }
+
+    await prisma.facility.delete({ where: { id } });
+
+    return res.json({ message: 'Fasilitas berhasil dihapus.' });
+  } catch (error) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({ message: 'Fasilitas tidak ditemukan.' });
+    }
+    return res.status(500).json({ message: 'Gagal menghapus fasilitas.', error: error.message });
+  }
+};
+
+module.exports = {
+  getAllUsers,
+  createUser,
+  updateUserRole,
+  deleteUser,
+  getRegions,
+  createKnmp,
+  updateKnmp,
+  deleteKnmp,
+  getAllFacilities,
+  createFacility,
+  updateFacility,
+  deleteFacility
+};
