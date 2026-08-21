@@ -9,6 +9,7 @@ const authRoutes = require('./routes/auth.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
 const operationalRoutes = require('./routes/operational.routes');
 const adminRoutes = require('./routes/admin.routes');
+const historyRoutes = require('./routes/history.routes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -49,6 +50,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/operational', operationalRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/history', historyRoutes);
 
 // Root Route untuk cek server
 app.get('/', (req, res) => {

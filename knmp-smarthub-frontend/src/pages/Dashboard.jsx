@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import HealthIndexCard from '../components/HealthIndexCard';
 import KPIChart from '../components/KPIChart';
 import EarlyWarningBanner from '../components/EarlyWarningBanner';
+import useAppStore from '../store/useAppStore';
 import { 
   Building2, 
   Settings, 
@@ -13,14 +14,19 @@ import {
   TrendingUp, 
   ArrowRight,
   TrendingDown,
-  Gauge
+  Gauge,
+  FileDown
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const Dashboard = () => {
+  const { user } = useAppStore();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
   const navigate = useNavigate();
+
+  const isAllowedToExport = user && ['ADMIN', 'KKP', 'PEMDA'].includes(user.role);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -59,6 +65,138 @@ const Dashboard = () => {
     <div className="main-content">
       {/* Top Navbar */}
       <Navbar title="Dashboard Nasional" />
+
+      {/* Export PDF Button for PEMDA/KKP/ADMIN */}
+      {isAllowedToExport && data && (
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <button
+            onClick={async () => {
+              setExporting(true);
+              const toastId = toast.loading('Generating laporan PDF...');
+              try {
+                const { default: jsPDF } = await import('jspdf');
+                await import('jspdf-autotable');
+
+                const doc = new jsPDF('p', 'mm', 'a4');
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const now = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+                // Header
+                doc.setFontSize(18);
+                doc.setFont('helvetica', 'bold');
+                doc.text('KNMP SmartHub - Laporan Dashboard Nasional', pageWidth / 2, 20, { align: 'center' });
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.text(`Government Decision Intelligence Platform | Tanggal: ${now}`, pageWidth / 2, 28, { align: 'center' });
+                doc.text(`Diekspor oleh: ${user?.name || '-'} (${user?.role || '-'})`, pageWidth / 2, 34, { align: 'center' });
+
+                doc.setDrawColor(0, 242, 254);
+                doc.setLineWidth(0.5);
+                doc.line(14, 38, pageWidth - 14, 38);
+
+                // Section 1: Ringkasan
+                doc.setFontSize(13);
+                doc.setFont('helvetica', 'bold');
+                doc.text('1. Ringkasan Statistik Nasional', 14, 46);
+
+                doc.autoTable({
+                  startY: 50,
+                  head: [['Indikator', 'Nilai']],
+                  body: [
+                    ['Total Lokasi KNMP', String(summary.totalKnmps)],
+                    ['Total Fasilitas Aktif', String(summary.totalFacilities)],
+                    ['Rata-rata Health Index', `${summary.averageHealthIndex} / 100`],
+                    ['Lokasi Sangat Baik', String(summary.statusCounts?.SANGAT_BAIK || 0)],
+                    ['Lokasi Baik', String(summary.statusCounts?.BAIK || 0)],
+                    ['Lokasi Moderat', String(summary.statusCounts?.MODERAT || 0)],
+                    ['Lokasi Perlu Perhatian', String(summary.statusCounts?.PERLU_PERHATIAN || 0)],
+                    ['Lokasi Kritis', String(summary.statusCounts?.KRITIS || 0)],
+                  ],
+                  theme: 'grid',
+                  headStyles: { fillColor: [0, 150, 200], fontSize: 10 },
+                  styles: { fontSize: 9, cellPadding: 3 },
+                  columnStyles: { 0: { fontStyle: 'bold' } },
+                });
+
+                // Section 2: Peringkat TOPSIS
+                let currentY = doc.lastAutoTable.finalY + 10;
+                doc.setFontSize(13);
+                doc.setFont('helvetica', 'bold');
+                doc.text('2. Peringkat Prioritas Intervensi (TOPSIS)', 14, currentY);
+
+                const rankingRows = (data?.rankings || []).map(r => [
+                  String(r.ranking),
+                  r.knmp?.name || '-',
+                  String(r.dPlus || 0),
+                  String(r.dMinus || 0),
+                  String(r.ccScore),
+                  r.status?.replace('_', ' ') || '-'
+                ]);
+
+                doc.autoTable({
+                  startY: currentY + 4,
+                  head: [['Ranking', 'Lokasi KNMP', 'D+', 'D-', 'CC Score', 'Status Urgensi']],
+                  body: rankingRows,
+                  theme: 'grid',
+                  headStyles: { fillColor: [0, 150, 200], fontSize: 9 },
+                  styles: { fontSize: 8, cellPadding: 3 },
+                  columnStyles: { 0: { halign: 'center', cellWidth: 18 } },
+                });
+
+                // Section 3: Early Warning
+                if (data?.activeWarnings?.length > 0) {
+                  currentY = doc.lastAutoTable.finalY + 10;
+                  doc.setFontSize(13);
+                  doc.setFont('helvetica', 'bold');
+                  doc.text('3. Peringatan Dini Aktif', 14, currentY);
+
+                  const warningRows = data.activeWarnings.map(w => [
+                    w.knmpName || '-',
+                    w.message || w.indicator || '-',
+                    w.severity || 'WARNING'
+                  ]);
+
+                  doc.autoTable({
+                    startY: currentY + 4,
+                    head: [['Lokasi', 'Peringatan', 'Keparahan']],
+                    body: warningRows,
+                    theme: 'grid',
+                    headStyles: { fillColor: [220, 50, 50], fontSize: 9 },
+                    styles: { fontSize: 8, cellPadding: 3 },
+                  });
+                }
+
+                // Footer
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                  doc.setPage(i);
+                  doc.setFontSize(8);
+                  doc.setFont('helvetica', 'italic');
+                  doc.text(
+                    `KNMP SmartHub - Halaman ${i} dari ${pageCount}`,
+                    pageWidth / 2, doc.internal.pageSize.getHeight() - 8,
+                    { align: 'center' }
+                  );
+                }
+
+                doc.save(`Laporan_KNMP_SmartHub_${new Date().toISOString().slice(0, 10)}.pdf`);
+                toast.success('Laporan PDF berhasil di-download!', { id: toastId });
+              } catch (err) {
+                console.error(err);
+                toast.error('Gagal membuat laporan PDF.', { id: toastId });
+              } finally {
+                setExporting(false);
+              }
+            }}
+            disabled={exporting}
+            className="btn-primary"
+            style={{ fontSize: '13px', padding: '10px 18px', height: 'auto' }}
+          >
+            <FileDown size={16} />
+            <span>{exporting ? 'Generating...' : 'Export Laporan PDF'}</span>
+          </button>
+        </div>
+      )}
 
       {/* Early Warning Banner if there are warnings */}
       {data?.activeWarnings && data.activeWarnings.length > 0 && (

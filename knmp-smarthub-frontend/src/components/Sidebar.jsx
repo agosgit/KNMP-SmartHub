@@ -10,7 +10,8 @@ import {
   User as UserIcon,
   Anchor,
   X,
-  Shield
+  Shield,
+  ClipboardList
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -32,6 +33,7 @@ const Sidebar = () => {
   const allowedInputRoles = ['ADMIN', 'PENGELOLA', 'TPI', 'KOPERASI', 'PENYULUH'];
   if (user && allowedInputRoles.includes(user.role)) {
     navItems.push({ name: 'Input Operasional', path: '/input', icon: PlusSquare });
+    navItems.push({ name: 'Riwayat Data', path: '/history', icon: ClipboardList });
   }
 
   // Tambahkan menu Admin Panel khusus ADMIN

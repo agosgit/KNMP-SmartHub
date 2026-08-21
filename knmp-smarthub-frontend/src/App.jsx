@@ -14,6 +14,7 @@ import Rankings from './pages/Rankings';
 import KNMPDetail from './pages/KNMPDetail';
 import OperationalInput from './pages/OperationalInput';
 import AdminPanel from './pages/AdminPanel';
+import ActivityHistory from './pages/ActivityHistory';
 
 // Layout Utama (Sidebar + Konten Utama)
 const AppLayout = () => {
@@ -73,6 +74,7 @@ function App() {
             <Route path="/knmp/:id" element={<KNMPDetail />} />
             <Route path="/input" element={<OperationalInput />} />
             <Route path="/admin" element={<AdminPanel />} />
+            <Route path="/history" element={<ActivityHistory />} />
           </Route>
         </Route>
 
