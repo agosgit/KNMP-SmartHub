@@ -75,7 +75,7 @@ const Dashboard = () => {
               const toastId = toast.loading('Generating laporan PDF...');
               try {
                 const { default: jsPDF } = await import('jspdf');
-                await import('jspdf-autotable');
+                const { default: autoTable } = await import('jspdf-autotable');
 
                 const doc = new jsPDF('p', 'mm', 'a4');
                 const pageWidth = doc.internal.pageSize.getWidth();
@@ -99,7 +99,7 @@ const Dashboard = () => {
                 doc.setFont('helvetica', 'bold');
                 doc.text('1. Ringkasan Statistik Nasional', 14, 46);
 
-                doc.autoTable({
+                const table1 = autoTable(doc, {
                   startY: 50,
                   head: [['Indikator', 'Nilai']],
                   body: [
@@ -133,7 +133,7 @@ const Dashboard = () => {
                   r.status?.replace('_', ' ') || '-'
                 ]);
 
-                doc.autoTable({
+                autoTable(doc, {
                   startY: currentY + 4,
                   head: [['Ranking', 'Lokasi KNMP', 'D+', 'D-', 'CC Score', 'Status Urgensi']],
                   body: rankingRows,
@@ -156,7 +156,7 @@ const Dashboard = () => {
                     w.severity || 'WARNING'
                   ]);
 
-                  doc.autoTable({
+                  autoTable(doc, {
                     startY: currentY + 4,
                     head: [['Lokasi', 'Peringatan', 'Keparahan']],
                     body: warningRows,
