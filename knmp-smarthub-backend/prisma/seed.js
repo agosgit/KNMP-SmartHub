@@ -183,8 +183,8 @@ async function main() {
 
   // 6. Create KPI Definitions with calculated weights
   const kpis = [
-    { name: 'Produksi Perikanan', key: 'PRODUCTION', weight: 0.351, description: 'Mengukur pencapaian volume hasil tangkapan nelayan terhadap target' },
-    { name: 'Efektivitas Distribusi', key: 'DISTRIBUTION', weight: 0.232, description: 'Mengukur kelancaran rantai distribusi hasil perikanan ke pasar' },
+    { name: 'Produksi Perikanan', key: 'PRODUCTION', weight: 0.352, description: 'Mengukur pencapaian volume hasil tangkapan nelayan terhadap target' },
+    { name: 'Efektivitas Distribusi', key: 'DISTRIBUTION', weight: 0.233, description: 'Mengukur kelancaran rantai distribusi hasil perikanan ke pasar' },
     { name: 'Utilisasi Cold Storage', key: 'COLD_STORAGE', weight: 0.138, description: 'Mengukur tingkat pemanfaatan ruang penyimpanan beku' },
     { name: 'Pemanfaatan Infrastruktur', key: 'INFRASTRUCTURE', weight: 0.138, description: 'Mengukur keaktifan seluruh fasilitas penunjang di lokasi KNMP' },
     { name: 'Aktivitas Koperasi', key: 'COOPERATIVE', weight: 0.087, description: 'Mengukur keaktifan transaksi dan keanggotaan koperasi nelayan' },
