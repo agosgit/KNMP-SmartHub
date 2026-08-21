@@ -122,9 +122,11 @@ async function main() {
     },
   });
 
-  let tpiUser;
-  let koperasiUser;
-  let penyuluhUser;
+  // Simpan user per KNMP agar seed data realistis
+  const tpiUsers = {};
+  const koperasiUsers = {};
+  const penyuluhUsers = {};
+
   for (const knmp of knmpInstances) {
     const baseName = knmp.name.replace('KNMP ', '').toLowerCase().replace(/\s+/g, '');
     
@@ -137,8 +139,7 @@ async function main() {
         knmpId: knmp.id
       },
     });
-    
-    if (!tpiUser) tpiUser = tpi;
+    tpiUsers[knmp.id] = tpi;
 
     const koperasi = await prisma.user.create({
       data: {
@@ -149,8 +150,7 @@ async function main() {
         knmpId: knmp.id
       },
     });
-    
-    if (!koperasiUser) koperasiUser = koperasi;
+    koperasiUsers[knmp.id] = koperasi;
 
     const penyuluh = await prisma.user.create({
       data: {
@@ -161,8 +161,7 @@ async function main() {
         knmpId: knmp.id
       },
     });
-    
-    if (!penyuluhUser) penyuluhUser = penyuluh;
+    penyuluhUsers[knmp.id] = penyuluh;
   }
 
   console.log('Created Users with Relational Links.');
@@ -259,13 +258,13 @@ async function main() {
         },
       });
 
-      // Create raw operational data for simulation
+      // Create raw operational data — gunakan reporter dari KNMP yang BENAR
       await prisma.fishProduction.create({
         data: {
           knmpId: knmp.id,
           fishType: 'Tuna/Cakalang',
-          volumeKg: kData.scores[0] * 250, // mock volume
-          reporterId: tpiUser.id,
+          volumeKg: kData.scores[0] * 250,
+          reporterId: tpiUsers[knmp.id].id,  // TPI milik KNMP ini
           date: today,
         },
       });
@@ -275,7 +274,7 @@ async function main() {
           knmpId: knmp.id,
           destination: 'Pasar Domestik & Ekspor',
           volumeKg: kData.scores[1] * 200,
-          reporterId: koperasiUser.id,
+          reporterId: koperasiUsers[knmp.id].id,  // Koperasi milik KNMP ini
           date: today,
         },
       });
@@ -293,7 +292,7 @@ async function main() {
     }
   }
 
-  // Create mock monitoring reports for warning/critical locations
+  // Create mock monitoring reports — gunakan penyuluh dari KNMP yang BENAR
   const palabuhanratu = knmpInstances.find(k => k.name === 'KNMP Palabuhanratu');
   if (palabuhanratu) {
     await prisma.monitoringReport.create({
@@ -302,7 +301,7 @@ async function main() {
         title: 'Kerusakan Mesin Cold Storage Utama',
         notes: 'Suhu cold storage utama melonjak naik karena kerusakan kompresor, menyebabkan penimbunan ikan hasil tangkapan di luar ruangan.',
         status: 'CRITICAL',
-        reporterId: penyuluhUser.id,
+        reporterId: penyuluhUsers[palabuhanratu.id].id,  // Penyuluh Palabuhanratu
         date: today,
       },
     });
@@ -316,7 +315,7 @@ async function main() {
         title: 'Penurunan Aktivitas Transaksi Koperasi',
         notes: 'Banyak nelayan beralih menjual hasil tangkapan ke tengkulak luar karena keterbatasan likuiditas dana talangan di koperasi.',
         status: 'WARNING',
-        reporterId: penyuluhUser.id,
+        reporterId: penyuluhUsers[brondong.id].id,  // Penyuluh Brondong
         date: today,
       },
     });
