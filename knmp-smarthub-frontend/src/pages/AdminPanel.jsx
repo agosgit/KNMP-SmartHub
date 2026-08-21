@@ -502,7 +502,7 @@ const KnmpManagementTab = ({ knmps, setKnmps, regions }) => {
                       {k.address}
                     </td>
                     <td>
-                      <span style={{ fontFamily: 'monospace', fontSize: '12px', color: 'var(--text-muted)' }}>
+                      <span style={{ fontFamily: 'monospace', fontSize: '12px', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
                         {k.latitude?.toFixed(4)}, {k.longitude?.toFixed(4)}
                       </span>
                     </td>

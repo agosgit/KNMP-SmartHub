@@ -265,7 +265,11 @@ const getKnmpsList = async (req, res) => {
       select: {
         id: true,
         name: true,
-        address: true
+        address: true,
+        latitude: true,
+        longitude: true,
+        status: true,
+        regionId: true
       },
       orderBy: { name: 'asc' }
     });
