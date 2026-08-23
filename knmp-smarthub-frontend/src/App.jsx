@@ -32,6 +32,15 @@ const ProtectedRoute = () => {
   return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
 };
 
+// Route Guard berbasis Role — redirect ke / jika role tidak diizinkan
+const RoleRoute = ({ allowedRoles, children }) => {
+  const { user } = useAppStore();
+  if (!user || !allowedRoles.includes(user.role)) {
+    return <Navigate to="/" replace />;
+  }
+  return children || <Outlet />;
+};
+
 function App() {
   const { theme } = useAppStore();
 
@@ -72,9 +81,27 @@ function App() {
             <Route path="/map" element={<GISMap />} />
             <Route path="/priorities" element={<Rankings />} />
             <Route path="/knmp/:id" element={<KNMPDetail />} />
-            <Route path="/input" element={<OperationalInput />} />
-            <Route path="/admin" element={<AdminPanel />} />
-            <Route path="/history" element={<ActivityHistory />} />
+
+            {/* Input Operasional — hanya role yang boleh input */}
+            <Route path="/input" element={
+              <RoleRoute allowedRoles={['ADMIN', 'PENGELOLA', 'TPI', 'KOPERASI', 'PENYULUH', 'PEMDA']}>
+                <OperationalInput />
+              </RoleRoute>
+            } />
+
+            {/* Riwayat Data — role yang boleh lihat riwayat */}
+            <Route path="/history" element={
+              <RoleRoute allowedRoles={['ADMIN', 'PENGELOLA', 'TPI', 'KOPERASI', 'PENYULUH', 'PEMDA']}>
+                <ActivityHistory />
+              </RoleRoute>
+            } />
+
+            {/* Admin Panel — hanya ADMIN dan KKP */}
+            <Route path="/admin" element={
+              <RoleRoute allowedRoles={['ADMIN', 'KKP']}>
+                <AdminPanel />
+              </RoleRoute>
+            } />
           </Route>
         </Route>
 

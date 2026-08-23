@@ -3,15 +3,81 @@ const { calculateAllHealthIndices } = require('../services/healthIndex.service')
 const { runTopsisCalculation } = require('../services/topsis.service');
 const { getActiveEarlyWarnings, generateKnmpRecommendations } = require('../services/recommendation.service');
 
-// 1. Dapatkan Ringkasan Data Dashboard Nasional
+/**
+ * Membangun filter Prisma `where` untuk query KNMP berdasarkan role dan scope user.
+ * - ADMIN, KKP, PENGELOLA: lihat semua (nasional)
+ * - PEMDA: lihat KNMP di provinsi yang sama
+ * - TPI, KOPERASI, PENYULUH: lihat hanya KNMP yang ditugaskan
+ */
+const buildKnmpFilter = async (user) => {
+  const nationalRoles = ['ADMIN', 'KKP', 'PENGELOLA'];
+  if (nationalRoles.includes(user.role)) return {};
+
+  if (user.role === 'PEMDA' && user.knmp?.region) {
+    // PEMDA melihat KNMP se-provinsi
+    // Cari parentId (provinsi) dari kabupaten user
+    const provinceId = user.knmp.region.type === 'PROVINSI'
+      ? user.knmp.region.id
+      : user.knmp.region.parentId;
+
+    if (provinceId) {
+      // Cari semua kabupaten di bawah provinsi ini
+      const regionsInProvince = await prisma.region.findMany({
+        where: {
+          OR: [
+            { id: provinceId },
+            { parentId: provinceId }
+          ]
+        },
+        select: { id: true }
+      });
+      const regionIds = regionsInProvince.map(r => r.id);
+      return { regionId: { in: regionIds } };
+    }
+  }
+
+  // TPI, KOPERASI, PENYULUH — hanya KNMP assigned
+  if (user.knmpId) return { id: user.knmpId };
+
+  return {};
+};
+
+/**
+ * Mendapatkan label scope untuk ditampilkan di dashboard frontend
+ */
+const getScopeLabel = (user) => {
+  const nationalRoles = ['ADMIN', 'KKP', 'PENGELOLA'];
+  if (nationalRoles.includes(user.role)) return 'Nasional';
+  if (user.role === 'PEMDA' && user.knmp?.region) {
+    const regionName = user.knmp.region.type === 'PROVINSI'
+      ? user.knmp.region.name
+      : user.knmp.region.name; // kabupaten — tampilkan nama kabupaten
+    return `Wilayah ${regionName}`;
+  }
+  if (user.knmp) return user.knmp.name;
+  return 'Nasional';
+};
+
+// 1. Dapatkan Ringkasan Data Dashboard
 const getNationalSummary = async (req, res) => {
   try {
-    // A. Hitung total lokasi dan fasilitas
-    const totalKnmps = await prisma.knmp.count();
-    const totalFacilities = await prisma.facility.count();
+    // Build filter berdasarkan role user
+    const knmpFilter = await buildKnmpFilter(req.user);
+    const scopeLabel = getScopeLabel(req.user);
 
-    // B. Hitung rata-rata Health Index Nasional (dari record terbaru)
+    // A. Hitung total lokasi dan fasilitas (filtered)
+    const totalKnmps = await prisma.knmp.count({ where: knmpFilter });
+    const totalFacilities = await prisma.facility.count({
+      where: knmpFilter.id
+        ? { knmpId: knmpFilter.id }
+        : knmpFilter.regionId
+          ? { knmp: { regionId: knmpFilter.regionId } }
+          : {}
+    });
+
+    // B. Hitung rata-rata Health Index (dari record terbaru, filtered)
     const knmps = await prisma.knmp.findMany({
+      where: knmpFilter,
       include: {
         healthIndices: {
           orderBy: { date: 'desc' },
@@ -43,12 +109,11 @@ const getNationalSummary = async (req, res) => {
 
     const averageHealthIndex = countHealth > 0 ? parseFloat((sumHealth / countHealth).toFixed(2)) : 0;
 
-    // C. Ambil rata-rata skor per indikator KPI
+    // C. Ambil rata-rata skor per indikator KPI (filtered)
     const kpiDefinitions = await prisma.kpiDefinition.findMany();
     const kpiAverages = [];
 
     for (const definition of kpiDefinitions) {
-      // Ambil skor terbaru untuk masing-masing KNMP untuk KPI ini
       let sumScore = 0;
       let countScore = 0;
 
@@ -75,8 +140,15 @@ const getNationalSummary = async (req, res) => {
       });
     }
 
-    // D. Ambil Peringkat TOPSIS Terupdate
+    // D. Ambil Peringkat TOPSIS Terupdate (filtered)
+    const topsisFilter = knmpFilter.id
+      ? { knmpId: knmpFilter.id }
+      : knmpFilter.regionId
+        ? { knmp: { regionId: knmpFilter.regionId } }
+        : {};
+
     const rankings = await prisma.topsisRanking.findMany({
+      where: topsisFilter,
       include: {
         knmp: {
           select: {
@@ -91,8 +163,14 @@ const getNationalSummary = async (req, res) => {
 
     // E. Dapatkan daftar Peringatan Dini (Early Warning)
     const activeWarnings = await getActiveEarlyWarnings();
+    // Filter warnings berdasarkan scope
+    const knmpIds = knmps.map(k => k.id);
+    const filteredWarnings = activeWarnings.filter(w =>
+      knmpIds.length === 0 || knmpIds.includes(w.knmpId)
+    );
 
     return res.json({
+      scopeLabel,
       summary: {
         totalKnmps,
         totalFacilities,
@@ -101,7 +179,7 @@ const getNationalSummary = async (req, res) => {
       },
       kpiAverages,
       rankings,
-      activeWarnings
+      activeWarnings: filteredWarnings
     });
   } catch (error) {
     return res.status(500).json({ message: 'Terjadi kesalahan saat memproses data dashboard.', error: error.message });
@@ -180,10 +258,13 @@ const getKnmpDetails = async (req, res) => {
   }
 };
 
-// 3. Ambil data sebaran koordinat untuk GIS Map
+// 3. Ambil data sebaran koordinat untuk GIS Map (filtered by scope)
 const getMapLocations = async (req, res) => {
   try {
+    const knmpFilter = await buildKnmpFilter(req.user);
+
     const locations = await prisma.knmp.findMany({
+      where: knmpFilter,
       select: {
         id: true,
         name: true,

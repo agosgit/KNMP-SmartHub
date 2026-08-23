@@ -393,6 +393,76 @@ const deleteFacility = async (req, res) => {
   }
 };
 
+// ============================================================
+// KPI / AHP WEIGHT MANAGEMENT
+// ============================================================
+
+// GET /admin/kpi-definitions — Lihat semua definisi KPI dan bobot AHP
+const getKpiDefinitions = async (req, res) => {
+  try {
+    const definitions = await prisma.kpiDefinition.findMany({
+      orderBy: { id: 'asc' }
+    });
+
+    // Hitung total bobot untuk validasi
+    const totalWeight = definitions.reduce((sum, d) => sum + d.weight, 0);
+
+    return res.json({
+      definitions,
+      totalWeight: parseFloat(totalWeight.toFixed(3))
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'Gagal mengambil daftar definisi KPI.', error: error.message });
+  }
+};
+
+// PUT /admin/kpi-definitions/:id — Update bobot dan deskripsi KPI
+const updateKpiDefinition = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { weight, description } = req.body;
+
+    if (isNaN(id)) {
+      return res.status(400).json({ message: 'ID KPI tidak valid.' });
+    }
+
+    if (weight === undefined && description === undefined) {
+      return res.status(400).json({ message: 'Minimal satu field (weight atau description) harus diisi.' });
+    }
+
+    const updateData = {};
+    if (weight !== undefined) {
+      const parsedWeight = parseFloat(weight);
+      if (isNaN(parsedWeight) || parsedWeight < 0 || parsedWeight > 1) {
+        return res.status(400).json({ message: 'Bobot harus berupa angka desimal antara 0 dan 1.' });
+      }
+      updateData.weight = parsedWeight;
+    }
+    if (description !== undefined) updateData.description = description;
+
+    const updated = await prisma.kpiDefinition.update({
+      where: { id },
+      data: updateData
+    });
+
+    // Cek apakah total bobot masih konsisten (= 1.000)
+    const allDefinitions = await prisma.kpiDefinition.findMany();
+    const totalWeight = allDefinitions.reduce((sum, d) => sum + d.weight, 0);
+
+    return res.json({
+      message: 'Definisi KPI berhasil diperbarui.',
+      definition: updated,
+      totalWeight: parseFloat(totalWeight.toFixed(3)),
+      isWeightValid: Math.abs(totalWeight - 1.0) < 0.005 // Toleransi pembulatan
+    });
+  } catch (error) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({ message: 'Definisi KPI tidak ditemukan.' });
+    }
+    return res.status(500).json({ message: 'Gagal memperbarui definisi KPI.', error: error.message });
+  }
+};
+
 module.exports = {
   getAllUsers,
   createUser,
@@ -405,5 +475,7 @@ module.exports = {
   getAllFacilities,
   createFacility,
   updateFacility,
-  deleteFacility
+  deleteFacility,
+  getKpiDefinitions,
+  updateKpiDefinition
 };

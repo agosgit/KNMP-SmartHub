@@ -30,15 +30,17 @@ const Sidebar = () => {
   ];
 
   // Tambahkan menu input data operasional jika rolenya diizinkan
-  const allowedInputRoles = ['ADMIN', 'PENGELOLA', 'TPI', 'KOPERASI', 'PENYULUH'];
+  const allowedInputRoles = ['ADMIN', 'PENGELOLA', 'TPI', 'KOPERASI', 'PENYULUH', 'PEMDA'];
   if (user && allowedInputRoles.includes(user.role)) {
     navItems.push({ name: 'Input Operasional', path: '/input', icon: PlusSquare });
     navItems.push({ name: 'Riwayat Data', path: '/history', icon: ClipboardList });
   }
 
-  // Tambahkan menu Admin Panel khusus ADMIN
+  // Tambahkan menu Admin Panel untuk ADMIN, atau Konfigurasi KPI untuk KKP
   if (user && user.role === 'ADMIN') {
     navItems.push({ name: 'Admin Panel', path: '/admin', icon: Shield });
+  } else if (user && user.role === 'KKP') {
+    navItems.push({ name: 'Konfigurasi KPI', path: '/admin', icon: Shield });
   }
 
   return (

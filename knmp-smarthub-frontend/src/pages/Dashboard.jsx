@@ -63,8 +63,8 @@ const Dashboard = () => {
 
   return (
     <div className="main-content">
-      {/* Top Navbar */}
-      <Navbar title="Dashboard Nasional" />
+      {/* Top Navbar — scope label dari backend berdasarkan role */}
+      <Navbar title={`Dashboard ${data?.scopeLabel || 'Nasional'}`} />
 
       {/* Export PDF Button for PEMDA/KKP/ADMIN */}
       {isAllowedToExport && data && (

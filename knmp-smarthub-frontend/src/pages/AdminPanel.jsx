@@ -16,7 +16,10 @@ import {
   AlertTriangle,
   UserPlus,
   Search,
-  Database
+  Database,
+  Settings,
+  RefreshCw,
+  Check
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -813,11 +816,249 @@ const FacilityManagementTab = ({ knmps }) => {
 };
 
 // ============================================================
+// TAB 4: KPI / AHP WEIGHT CONFIGURATION
+// ============================================================
+const KpiConfigTab = () => {
+  const [definitions, setDefinitions] = useState([]);
+  const [totalWeight, setTotalWeight] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState(null);
+  const [editWeight, setEditWeight] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [recalculating, setRecalculating] = useState(false);
+
+  const fetchKpiDefinitions = async () => {
+    try {
+      setLoading(true);
+      const res = await API.get('/admin/kpi-definitions');
+      setDefinitions(res.data.definitions);
+      setTotalWeight(res.data.totalWeight);
+    } catch (err) {
+      toast.error('Gagal memuat definisi KPI.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchKpiDefinitions(); }, []);
+
+  const startEdit = (def) => {
+    setEditingId(def.id);
+    setEditWeight((def.weight * 100).toFixed(1));
+    setEditDescription(def.description || '');
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditWeight('');
+    setEditDescription('');
+  };
+
+  const saveEdit = async (id) => {
+    try {
+      setSaving(true);
+      const weightDecimal = parseFloat(editWeight) / 100;
+      if (isNaN(weightDecimal) || weightDecimal < 0 || weightDecimal > 1) {
+        toast.error('Bobot harus antara 0% dan 100%.');
+        return;
+      }
+
+      const res = await API.put(`/admin/kpi-definitions/${id}`, {
+        weight: weightDecimal,
+        description: editDescription
+      });
+
+      toast.success(res.data.message);
+      if (!res.data.isWeightValid) {
+        toast.error(`Total bobot: ${(res.data.totalWeight * 100).toFixed(1)}% — harus 100%!`, { duration: 5000 });
+      }
+      setEditingId(null);
+      fetchKpiDefinitions();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Gagal menyimpan perubahan.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleRecalculate = async () => {
+    if (Math.abs(totalWeight - 1.0) >= 0.005) {
+      toast.error('Total bobot belum 100%. Sesuaikan bobot terlebih dahulu sebelum kalkulasi ulang.');
+      return;
+    }
+    try {
+      setRecalculating(true);
+      const res = await API.post('/dashboard/recalculate');
+      toast.success(res.data.message);
+    } catch (err) {
+      toast.error('Kalkulasi ulang gagal.');
+    } finally {
+      setRecalculating(false);
+    }
+  };
+
+  const isWeightValid = Math.abs(totalWeight - 1.0) < 0.005;
+
+  if (loading) {
+    return (
+      <div className="admin-empty-state">
+        <Loader2 size={36} className="animate-spin" color="var(--color-primary)" />
+        <span>Memuat Konfigurasi KPI...</span>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {/* Header & Recalculate */}
+      <div className="glass-card" style={{ marginBottom: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+          <div>
+            <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '4px' }}>
+              Bobot AHP (Analytic Hierarchy Process)
+            </h3>
+            <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+              Bobot menentukan prioritas relatif setiap KPI dalam perhitungan Health Index. Total bobot harus = 100%.
+            </p>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{
+              padding: '8px 14px',
+              borderRadius: '10px',
+              fontSize: '13px',
+              fontWeight: '700',
+              background: isWeightValid ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+              border: `1px solid ${isWeightValid ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
+              color: isWeightValid ? 'var(--color-success)' : 'var(--color-critical)'
+            }}>
+              Total: {(totalWeight * 100).toFixed(1)}%
+              {isWeightValid && <Check size={14} style={{ marginLeft: '6px', verticalAlign: 'middle' }} />}
+            </div>
+            <button
+              className="btn-primary"
+              onClick={handleRecalculate}
+              disabled={recalculating || !isWeightValid}
+              style={{ padding: '10px 16px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px' }}
+            >
+              {recalculating ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
+              <span>{recalculating ? 'Kalkulasi...' : 'Kalkulasi Ulang Engine'}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* KPI Table */}
+      <div className="glass-card">
+        <div className="admin-table-wrapper">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Nama KPI</th>
+                <th>Kunci</th>
+                <th>Bobot (%)</th>
+                <th>Deskripsi</th>
+                <th style={{ width: '100px' }}>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {definitions.map((def, idx) => (
+                <tr key={def.id}>
+                  <td style={{ fontWeight: '600' }}>{idx + 1}</td>
+                  <td style={{ fontWeight: '600', color: 'var(--text-primary)' }}>{def.name}</td>
+                  <td>
+                    <span className="status-badge admin" style={{ fontSize: '11px' }}>{def.key}</span>
+                  </td>
+                  <td>
+                    {editingId === def.id ? (
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="100"
+                        value={editWeight}
+                        onChange={(e) => setEditWeight(e.target.value)}
+                        className="form-input"
+                        style={{ width: '80px', padding: '6px 10px', fontSize: '13px', textAlign: 'center' }}
+                      />
+                    ) : (
+                      <span style={{ fontWeight: '700', fontSize: '15px', color: 'var(--color-primary)' }}>
+                        {(def.weight * 100).toFixed(1)}%
+                      </span>
+                    )}
+                  </td>
+                  <td style={{ maxWidth: '300px' }}>
+                    {editingId === def.id ? (
+                      <input
+                        type="text"
+                        value={editDescription}
+                        onChange={(e) => setEditDescription(e.target.value)}
+                        className="form-input"
+                        style={{ padding: '6px 10px', fontSize: '12px', width: '100%' }}
+                      />
+                    ) : (
+                      <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                        {def.description || '-'}
+                      </span>
+                    )}
+                  </td>
+                  <td>
+                    {editingId === def.id ? (
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        <button
+                          className="admin-action-btn edit"
+                          onClick={() => saveEdit(def.id)}
+                          disabled={saving}
+                          title="Simpan"
+                        >
+                          {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                        </button>
+                        <button className="admin-action-btn delete" onClick={cancelEdit} title="Batal">
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ) : (
+                      <button className="admin-action-btn edit" onClick={() => startEdit(def)} title="Edit Bobot">
+                        <Pencil size={14} />
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* CR Info */}
+        <div style={{
+          marginTop: '16px',
+          padding: '14px 18px',
+          borderRadius: '10px',
+          background: 'rgba(0, 242, 254, 0.04)',
+          border: '1px solid rgba(0, 242, 254, 0.1)',
+          fontSize: '12px',
+          color: 'var(--text-secondary)',
+          lineHeight: '1.6'
+        }}>
+          <strong style={{ color: 'var(--color-primary)' }}>ℹ Informasi AHP:</strong> Bobot saat ini dihitung menggunakan metode
+          Analytic Hierarchy Process (AHP) dengan Consistency Ratio (CR) = 0,019 (di bawah ambang batas 0,10).
+          Perubahan bobot akan mempengaruhi Health Index dan ranking TOPSIS seluruh lokasi KNMP.
+          Setelah mengubah bobot, tekan tombol <strong>"Kalkulasi Ulang Engine"</strong> untuk memperbarui seluruh data.
+        </div>
+      </div>
+    </>
+  );
+};
+
+// ============================================================
 // MAIN ADMIN PANEL PAGE
 // ============================================================
 const AdminPanel = () => {
   const { user } = useAppStore();
-  const [activeTab, setActiveTab] = useState('users');
+  const isKKP = user?.role === 'KKP';
+  const isAdmin = user?.role === 'ADMIN';
+  const [activeTab, setActiveTab] = useState(isKKP ? 'kpi' : 'users');
   const [knmps, setKnmps] = useState([]);
   const [regions, setRegions] = useState([]);
   const [loadingInit, setLoadingInit] = useState(true);
@@ -825,12 +1066,19 @@ const AdminPanel = () => {
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        const [knmpRes, regionRes] = await Promise.all([
-          API.get('/operational/knmps'),
-          API.get('/admin/regions')
-        ]);
-        setKnmps(knmpRes.data);
-        setRegions(regionRes.data);
+        // KKP hanya butuh data KPI, tidak perlu fetch regions/knmps untuk admin
+        if (isAdmin) {
+          const [knmpRes, regionRes] = await Promise.all([
+            API.get('/operational/knmps'),
+            API.get('/admin/regions')
+          ]);
+          setKnmps(knmpRes.data);
+          setRegions(regionRes.data);
+        } else {
+          // KKP: hanya fetch daftar KNMP untuk konteks
+          const knmpRes = await API.get('/operational/knmps');
+          setKnmps(knmpRes.data);
+        }
       } catch (err) {
         toast.error('Gagal memuat data awal admin panel.');
       } finally {
@@ -840,8 +1088,8 @@ const AdminPanel = () => {
     fetchInitialData();
   }, []);
 
-  // Guard: Non-admin users should not see this page
-  if (user?.role !== 'ADMIN') {
+  // Guard: hanya ADMIN dan KKP yang boleh akses
+  if (!isAdmin && !isKKP) {
     return (
       <div className="main-content">
         <Navbar title="Admin Panel" />
@@ -849,22 +1097,26 @@ const AdminPanel = () => {
           <Shield size={48} color="var(--color-critical)" style={{ marginBottom: '16px' }} />
           <h3 style={{ fontSize: '18px', color: 'var(--text-primary)', marginBottom: '8px' }}>Akses Ditolak</h3>
           <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
-            Halaman ini hanya dapat diakses oleh <strong>Administrator</strong>.
+            Halaman ini hanya dapat diakses oleh <strong>Administrator</strong> atau <strong>KKP Pusat</strong>.
           </p>
         </div>
       </div>
     );
   }
 
-  const tabs = [
-    { key: 'users', label: 'Manajemen User', icon: Users },
-    { key: 'knmps', label: 'Manajemen KNMP', icon: MapPin },
-    { key: 'facilities', label: 'Manajemen Fasilitas', icon: Building2 },
+  // Tabs — KKP hanya melihat tab KPI, ADMIN melihat semua
+  const allTabs = [
+    { key: 'users', label: 'Manajemen User', icon: Users, adminOnly: true },
+    { key: 'knmps', label: 'Manajemen KNMP', icon: MapPin, adminOnly: true },
+    { key: 'facilities', label: 'Manajemen Fasilitas', icon: Building2, adminOnly: true },
+    { key: 'kpi', label: 'Konfigurasi KPI', icon: Settings, adminOnly: false },
   ];
+
+  const tabs = allTabs.filter(tab => isAdmin || !tab.adminOnly);
 
   return (
     <div className="main-content">
-      <Navbar title="Admin Panel" />
+      <Navbar title={isKKP ? 'Konfigurasi KPI — KKP Pusat' : 'Admin Panel'} />
 
       {/* Tab Navigation */}
       <div style={tabStyles.tabsContainer}>
@@ -895,9 +1147,10 @@ const AdminPanel = () => {
         </div>
       ) : (
         <>
-          {activeTab === 'users' && <UserManagementTab knmps={knmps} />}
-          {activeTab === 'knmps' && <KnmpManagementTab knmps={knmps} setKnmps={setKnmps} regions={regions} />}
-          {activeTab === 'facilities' && <FacilityManagementTab knmps={knmps} />}
+          {activeTab === 'users' && isAdmin && <UserManagementTab knmps={knmps} />}
+          {activeTab === 'knmps' && isAdmin && <KnmpManagementTab knmps={knmps} setKnmps={setKnmps} regions={regions} />}
+          {activeTab === 'facilities' && isAdmin && <FacilityManagementTab knmps={knmps} />}
+          {activeTab === 'kpi' && <KpiConfigTab />}
         </>
       )}
     </div>

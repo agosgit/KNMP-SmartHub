@@ -2,6 +2,20 @@ const prisma = require('../lib/db');
 const { calculateKnmpHealthIndex } = require('../services/healthIndex.service');
 const { runTopsisCalculation } = require('../services/topsis.service');
 
+/**
+ * Validasi scope KNMP: user yang terikat KNMP hanya boleh input data untuk KNMP-nya sendiri.
+ * ADMIN dan PENGELOLA (tanpa knmpId) bebas memilih KNMP manapun.
+ */
+const validateKnmpScope = (req, knmpId) => {
+  if (req.user.knmpId && req.user.knmpId !== parseInt(knmpId)) {
+    return {
+      valid: false,
+      message: 'Anda hanya dapat menginput data untuk lokasi KNMP yang ditugaskan kepada Anda.'
+    };
+  }
+  return { valid: true };
+};
+
 // Target konstanta untuk simulasi kalkulasi skor KPI (0 - 100)
 const TARGETS = {
   PRODUCTION_KG: 20000,   // Target produksi 20.000 kg per bulan/periode
@@ -18,6 +32,10 @@ const addProduction = async (req, res) => {
     if (!knmpId || !fishType || !volumeKg) {
       return res.status(400).json({ message: 'Data KNMP, jenis ikan, dan volume (kg) harus diisi.' });
     }
+
+    // Validasi scope: user terikat KNMP hanya boleh input untuk KNMP-nya
+    const scope = validateKnmpScope(req, knmpId);
+    if (!scope.valid) return res.status(403).json({ message: scope.message });
 
     const inputDate = date ? new Date(date) : new Date();
 
@@ -76,6 +94,10 @@ const addDistribution = async (req, res) => {
       return res.status(400).json({ message: 'Data KNMP, tujuan distribusi, dan volume (kg) harus diisi.' });
     }
 
+    // Validasi scope
+    const scope = validateKnmpScope(req, knmpId);
+    if (!scope.valid) return res.status(403).json({ message: scope.message });
+
     const inputDate = date ? new Date(date) : new Date();
 
     // A. Simpan data distribusi mentah
@@ -129,6 +151,10 @@ const addCooperativeActivity = async (req, res) => {
     if (!knmpId || !name || !activeMembers || !transactions || !transactionValue) {
       return res.status(400).json({ message: 'Semua kolom aktivitas koperasi wajib diisi.' });
     }
+
+    // Validasi scope
+    const scope = validateKnmpScope(req, knmpId);
+    if (!scope.valid) return res.status(403).json({ message: scope.message });
 
     const inputDate = date ? new Date(date) : new Date();
 
@@ -185,6 +211,10 @@ const addMonitoringReport = async (req, res) => {
       return res.status(400).json({ message: 'Data KNMP, judul laporan, catatan, dan status (NORMAL, WARNING, CRITICAL) harus diisi.' });
     }
 
+    // Validasi scope
+    const scope = validateKnmpScope(req, knmpId);
+    if (!scope.valid) return res.status(403).json({ message: scope.message });
+
     const inputDate = date ? new Date(date) : new Date();
 
     // A. Simpan data laporan
@@ -225,6 +255,10 @@ const updateColdStorageScore = async (req, res) => {
       return res.status(400).json({ message: 'KNMP ID dan skor utilisasi cold storage (0-100) harus diisi.' });
     }
 
+    // Validasi scope
+    const scope = validateKnmpScope(req, knmpId);
+    if (!scope.valid) return res.status(403).json({ message: scope.message });
+
     const inputDate = date ? new Date(date) : new Date();
 
     const kpiDefinition = await prisma.kpiDefinition.findUnique({
@@ -259,9 +293,17 @@ const updateColdStorageScore = async (req, res) => {
 };
 
 // Helper: Get list lokasi KNMP untuk dropdown forms di frontend
+// Sudah di-scope: user terikat KNMP hanya melihat KNMP-nya di dropdown
 const getKnmpsList = async (req, res) => {
   try {
+    // User yang terikat KNMP hanya lihat KNMP-nya sendiri di dropdown
+    const where = {};
+    if (req.user.knmpId) {
+      where.id = req.user.knmpId;
+    }
+
     const knmps = await prisma.knmp.findMany({
+      where,
       select: {
         id: true,
         name: true,
