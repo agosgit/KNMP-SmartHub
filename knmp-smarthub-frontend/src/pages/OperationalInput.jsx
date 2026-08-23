@@ -70,7 +70,8 @@ const OperationalInput = () => {
   const isTabAllowed = (tabName) => {
     if (!user) return false;
     const role = user.role;
-    if (role === 'ADMIN' || role === 'PENGELOLA') return true;
+    // ADMIN, PENGELOLA, dan PEMDA (dinas daerah) dapat mengakses semua modul input
+    if (role === 'ADMIN' || role === 'PENGELOLA' || role === 'PEMDA') return true;
 
     switch (tabName) {
       case 'production':
