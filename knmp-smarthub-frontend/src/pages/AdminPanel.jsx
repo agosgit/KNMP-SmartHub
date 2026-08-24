@@ -939,7 +939,7 @@ const KpiConfigTab = () => {
               className="btn-primary"
               onClick={handleRecalculate}
               disabled={recalculating || !isWeightValid}
-              style={{ padding: '10px 16px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px', flex: '1 1 auto', justifyContent: 'center' }}
+              style={{ padding: '10px 16px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px' }}
             >
               {recalculating ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
               <span>{recalculating ? 'Kalkulasi...' : 'Kalkulasi Ulang Engine'}</span>
