@@ -91,7 +91,6 @@ const getNationalSummary = async (req, res) => {
     const statusCounts = {
       SANGAT_BAIK: 0,
       BAIK: 0,
-      MODERAT: 0,
       PERLU_PERHATIAN: 0,
       KRITIS: 0
     };
@@ -295,7 +294,7 @@ const getMapLocations = async (req, res) => {
         status: loc.status,
         region: loc.region.name,
         healthIndex: health ? health.healthIndex : 0,
-        healthStatus: health ? health.status : 'MODERAT'
+        healthStatus: health ? health.status : 'BAIK'
       };
     });
 

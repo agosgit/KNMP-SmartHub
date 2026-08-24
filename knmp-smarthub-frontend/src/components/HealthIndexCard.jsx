@@ -1,15 +1,13 @@
 import React from 'react';
 
 const HealthIndexCard = ({ score, status, title = 'KNMP Health Index' }) => {
-  // Tentukan warna utama berdasarkan status
+  // Tentukan warna utama berdasarkan status (4 Kategori sesuai Proposal: Sangat Baik, Baik, Perlu Perhatian, Kritis)
   const getColorScheme = (statusName) => {
     switch (statusName) {
       case 'SANGAT_BAIK':
         return { text: '#10B981', border: 'rgba(16, 185, 129, 0.2)', bg: 'rgba(16, 185, 129, 0.05)', shadow: 'rgba(16, 185, 129, 0.15)' };
       case 'BAIK':
         return { text: '#34D399', border: 'rgba(52, 211, 153, 0.2)', bg: 'rgba(52, 211, 153, 0.05)', shadow: 'rgba(52, 211, 153, 0.1)' };
-      case 'MODERAT':
-        return { text: '#4FACFE', border: 'rgba(79, 172, 254, 0.2)', bg: 'rgba(79, 172, 254, 0.05)', shadow: 'rgba(79, 172, 254, 0.1)' };
       case 'PERLU_PERHATIAN':
         return { text: '#F5AF19', border: 'rgba(245, 175, 25, 0.2)', bg: 'rgba(245, 175, 25, 0.05)', shadow: 'rgba(245, 175, 25, 0.15)' };
       case 'KRITIS':
@@ -19,7 +17,7 @@ const HealthIndexCard = ({ score, status, title = 'KNMP Health Index' }) => {
   };
 
   const scheme = getColorScheme(status);
-  const formattedStatus = status ? status.replace('_', ' ') : 'MODERAT';
+  const formattedStatus = status ? status.replace('_', ' ') : 'BAIK';
 
   // Perhitungan lingkaran SVG
   const radius = 50;

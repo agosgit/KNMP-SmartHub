@@ -235,7 +235,7 @@ async function main() {
   const mockScores = {
     'KNMP Muara Baru': { scores: [82, 75, 88, 70, 65, 90], health: 78.32, status: 'BAIK', cc: 0.786, rank: 5, urgent: 'RENDAH', dPlus: 0.0286, dMinus: 0.1051 },
     'KNMP Brondong': { scores: [55, 60, 45, 50, 40, 70], health: 53.46, status: 'PERLU_PERHATIAN', cc: 0.309, rank: 2, urgent: 'URGENT', dPlus: 0.0943, dMinus: 0.0422 },
-    'KNMP Belawan': { scores: [70, 65, 72, 68, 72, 80], health: 69.39, status: 'MODERAT', cc: 0.609, rank: 4, urgent: 'SEDANG', dPlus: 0.0460, dMinus: 0.0716 },
+    'KNMP Belawan': { scores: [70, 65, 72, 68, 72, 80], health: 69.39, status: 'BAIK', cc: 0.609, rank: 4, urgent: 'SEDANG', dPlus: 0.0460, dMinus: 0.0716 },
     'KNMP Bitung': { scores: [90, 85, 78, 88, 80, 95], health: 86.12, status: 'SANGAT_BAIK', cc: 1.000, rank: 6, urgent: 'SANGAT_RENDAH', dPlus: 0.0000, dMinus: 0.1314 },
     'KNMP Palabuhanratu': { scores: [48, 38, 35, 42, 30, 55], health: 41.76, status: 'KRITIS', cc: 0.000, rank: 1, urgent: 'SANGAT_URGENT', dPlus: 0.1302, dMinus: 0.0000 },
     'KNMP Ternate': { scores: [62, 55, 60, 58, 55, 65], health: 58.97, status: 'PERLU_PERHATIAN', cc: 0.421, rank: 3, urgent: 'TINGGI', dPlus: 0.0710, dMinus: 0.0517 },

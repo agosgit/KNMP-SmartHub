@@ -7,9 +7,8 @@ const prisma = require('../lib/db');
  */
 const getStatusClassification = (score) => {
   if (score >= 80) return 'SANGAT_BAIK';
-  if (score >= 70) return 'BAIK';
-  if (score >= 60) return 'MODERAT';
-  if (score >= 50) return 'PERLU_PERHATIAN';
+  if (score >= 60) return 'BAIK';
+  if (score >= 40) return 'PERLU_PERHATIAN';
   return 'KRITIS';
 };
 

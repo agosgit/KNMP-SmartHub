@@ -106,11 +106,10 @@ const Dashboard = () => {
                     ['Total Lokasi KNMP', String(summary.totalKnmps)],
                     ['Total Fasilitas Aktif', String(summary.totalFacilities)],
                     ['Rata-rata Health Index', `${summary.averageHealthIndex} / 100`],
-                    ['Lokasi Sangat Baik', String(summary.statusCounts?.SANGAT_BAIK || 0)],
-                    ['Lokasi Baik', String(summary.statusCounts?.BAIK || 0)],
-                    ['Lokasi Moderat', String(summary.statusCounts?.MODERAT || 0)],
-                    ['Lokasi Perlu Perhatian', String(summary.statusCounts?.PERLU_PERHATIAN || 0)],
-                    ['Lokasi Kritis', String(summary.statusCounts?.KRITIS || 0)],
+                    ['Lokasi Sangat Baik (80-100)', String(summary.statusCounts?.SANGAT_BAIK || 0)],
+                    ['Lokasi Baik (60-79)', String(summary.statusCounts?.BAIK || 0)],
+                    ['Lokasi Perlu Perhatian (40-59)', String(summary.statusCounts?.PERLU_PERHATIAN || 0)],
+                    ['Lokasi Kritis (0-39)', String(summary.statusCounts?.KRITIS || 0)],
                   ],
                   theme: 'grid',
                   headStyles: { fillColor: [0, 150, 200], fontSize: 10 },
@@ -248,7 +247,7 @@ const Dashboard = () => {
         <div style={{ flex: 1 }}>
           <HealthIndexCard 
             score={summary.averageHealthIndex} 
-            status={summary.averageHealthIndex >= 80 ? 'SANGAT_BAIK' : (summary.averageHealthIndex >= 70 ? 'BAIK' : (summary.averageHealthIndex >= 60 ? 'MODERAT' : (summary.averageHealthIndex >= 50 ? 'PERLU_PERHATIAN' : 'KRITIS')))}
+            status={summary.averageHealthIndex >= 80 ? 'SANGAT_BAIK' : (summary.averageHealthIndex >= 60 ? 'BAIK' : (summary.averageHealthIndex >= 40 ? 'PERLU_PERHATIAN' : 'KRITIS'))}
             title="Index Kesehatan Rata-Rata"
           />
         </div>

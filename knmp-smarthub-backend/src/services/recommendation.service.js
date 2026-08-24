@@ -106,7 +106,7 @@ const generateKnmpRecommendations = async (knmpId) => {
     knmpId,
     knmpName: knmp.name,
     healthIndex: healthIndexValue,
-    overallStatus: latestHealth ? latestHealth.status : 'MODERAT',
+    overallStatus: latestHealth ? latestHealth.status : 'BAIK',
     isUrgent: healthIndexValue < 60,
     warnings: warningList,
     recommendations: recommendationsList

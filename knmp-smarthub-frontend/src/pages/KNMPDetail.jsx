@@ -48,7 +48,7 @@ const KNMPDetail = () => {
   }
 
   const { knmp, kpiScores, recommendations, warnings } = data;
-  const latestHealth = knmp.healthIndices[0] || { healthIndex: 0, status: 'MODERAT' };
+  const latestHealth = knmp.healthIndices[0] || { healthIndex: 0, status: 'BAIK' };
 
   // Format data untuk Radar Chart Recharts
   const radarData = kpiScores.map(item => ({
