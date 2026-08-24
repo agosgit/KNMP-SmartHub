@@ -913,7 +913,7 @@ const KpiConfigTab = () => {
     <>
       {/* Header & Recalculate */}
       <div className="glass-card" style={{ marginBottom: '16px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div>
             <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '4px' }}>
               Bobot AHP (Analytic Hierarchy Process)
@@ -922,7 +922,7 @@ const KpiConfigTab = () => {
               Bobot menentukan prioritas relatif setiap KPI dalam perhitungan Health Index. Total bobot harus = 100%.
             </p>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
             <div style={{
               padding: '8px 14px',
               borderRadius: '10px',
@@ -939,7 +939,7 @@ const KpiConfigTab = () => {
               className="btn-primary"
               onClick={handleRecalculate}
               disabled={recalculating || !isWeightValid}
-              style={{ padding: '10px 16px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px' }}
+              style={{ padding: '10px 16px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px', flex: '1 1 auto', justifyContent: 'center' }}
             >
               {recalculating ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
               <span>{recalculating ? 'Kalkulasi...' : 'Kalkulasi Ulang Engine'}</span>
@@ -948,9 +948,10 @@ const KpiConfigTab = () => {
         </div>
       </div>
 
-      {/* KPI Table */}
+      {/* KPI Cards/Table - Responsive */}
       <div className="glass-card">
-        <div className="admin-table-wrapper">
+        {/* Desktop: Table */}
+        <div className="admin-table-wrapper" style={{ display: 'var(--kpi-table-display, block)' }}>
           <table className="admin-table">
             <thead>
               <tr>
@@ -1028,6 +1029,76 @@ const KpiConfigTab = () => {
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile: Card Layout */}
+        <div className="kpi-mobile-cards">
+          {definitions.map((def, idx) => (
+            <div key={def.id} className="kpi-mobile-card">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                    <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', minWidth: '20px' }}>{idx + 1}.</span>
+                    <span style={{ fontWeight: '700', fontSize: '14px', color: 'var(--text-primary)' }}>{def.name}</span>
+                  </div>
+                  <span className="status-badge admin" style={{ fontSize: '10px', marginLeft: '28px' }}>{def.key}</span>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  {editingId === def.id ? (
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      <button className="admin-action-btn edit" onClick={() => saveEdit(def.id)} disabled={saving} title="Simpan">
+                        {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                      </button>
+                      <button className="admin-action-btn delete" onClick={cancelEdit} title="Batal">
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ) : (
+                    <button className="admin-action-btn edit" onClick={() => startEdit(def)} title="Edit Bobot">
+                      <Pencil size={14} />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '16px', alignItems: 'center', marginBottom: '8px', paddingLeft: '28px' }}>
+                <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: '600' }}>BOBOT:</span>
+                {editingId === def.id ? (
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="100"
+                    value={editWeight}
+                    onChange={(e) => setEditWeight(e.target.value)}
+                    className="form-input"
+                    style={{ width: '80px', padding: '6px 10px', fontSize: '14px', textAlign: 'center' }}
+                  />
+                ) : (
+                  <span style={{ fontWeight: '700', fontSize: '18px', color: 'var(--color-primary)' }}>
+                    {(def.weight * 100).toFixed(1)}%
+                  </span>
+                )}
+              </div>
+
+              <div style={{ paddingLeft: '28px' }}>
+                <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: '600', display: 'block', marginBottom: '3px' }}>DESKRIPSI:</span>
+                {editingId === def.id ? (
+                  <input
+                    type="text"
+                    value={editDescription}
+                    onChange={(e) => setEditDescription(e.target.value)}
+                    className="form-input"
+                    style={{ padding: '8px 10px', fontSize: '12px', width: '100%' }}
+                  />
+                ) : (
+                  <span style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+                    {def.description || '-'}
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* CR Info */}

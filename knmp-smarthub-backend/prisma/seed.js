@@ -113,12 +113,35 @@ async function main() {
     },
   });
 
-  const pemdaUser = await prisma.user.create({
+  // PEMDA Users — masing-masing terikat ke KNMP di provinsi berbeda
+  // Ini memungkinkan demo scope wilayah per provinsi
+  const pemdaDki = await prisma.user.create({
     data: {
-      email: 'pemda@smarthub.go.id',
+      email: 'pemda.dki@smarthub.go.id',
+      name: 'Ratna Dewi',
+      password: hashedPassword,
+      role: 'PEMDA',
+      knmpId: knmpInstances[0].id // KNMP Muara Baru (DKI Jakarta)
+    },
+  });
+
+  const pemdaSumut = await prisma.user.create({
+    data: {
+      email: 'pemda.sumut@smarthub.go.id',
       name: 'Haryanto',
       password: hashedPassword,
       role: 'PEMDA',
+      knmpId: knmpInstances[2].id // KNMP Belawan (Sumatera Utara)
+    },
+  });
+
+  const pemdaJatim = await prisma.user.create({
+    data: {
+      email: 'pemda.jatim@smarthub.go.id',
+      name: 'Bambang Purnomo',
+      password: hashedPassword,
+      role: 'PEMDA',
+      knmpId: knmpInstances[1].id // KNMP Brondong (Jawa Timur)
     },
   });
 

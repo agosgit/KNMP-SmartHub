@@ -922,3 +922,42 @@ a {
 [data-theme='light'] .modal-content {
   background: #FFFFFF;
 }
+
+/* ==========================================================================
+   KPI MOBILE RESPONSIVE STYLES
+   ========================================================================== */
+
+/* Default: Hide mobile cards, show table */
+.kpi-mobile-cards {
+  display: none;
+}
+
+/* Mobile: ≤ 768px */
+@media (max-width: 768px) {
+  /* Hide desktop table, show mobile cards */
+  .admin-table-wrapper {
+    display: none !important;
+  }
+
+  .kpi-mobile-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .kpi-mobile-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 16px;
+    transition: border-color var(--transition-fast);
+  }
+
+  .kpi-mobile-card:hover {
+    border-color: rgba(0, 242, 254, 0.2);
+  }
+}
+
+[data-theme='light'] .kpi-mobile-card {
+  background: #F9FAFB;
+}
