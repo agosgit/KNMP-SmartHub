@@ -75,11 +75,15 @@ const getNationalSummary = async (req, res) => {
           : {}
     });
 
-    // B. Hitung rata-rata Health Index (dari record terbaru, filtered)
+    // B. Hitung rata-rata Health Index & Peringkat TOPSIS (dari record terbaru, filtered)
     const knmps = await prisma.knmp.findMany({
       where: knmpFilter,
       include: {
         healthIndices: {
+          orderBy: { date: 'desc' },
+          take: 1
+        },
+        topsisRankings: {
           orderBy: { date: 'desc' },
           take: 1
         }
@@ -139,26 +143,31 @@ const getNationalSummary = async (req, res) => {
       });
     }
 
-    // D. Ambil Peringkat TOPSIS Terupdate (filtered)
-    const topsisFilter = knmpFilter.id
-      ? { knmpId: knmpFilter.id }
-      : knmpFilter.regionId
-        ? { knmp: { regionId: knmpFilter.regionId } }
-        : {};
-
-    const rankings = await prisma.topsisRanking.findMany({
-      where: topsisFilter,
-      include: {
-        knmp: {
-          select: {
-            id: true,
-            name: true,
-            status: true
-          }
+    // D. Ambil Peringkat TOPSIS Terupdate (deduplicated per KNMP)
+    const rankings = knmps
+      .map(k => {
+        if (k.topsisRankings && k.topsisRankings.length > 0) {
+          const r = k.topsisRankings[0];
+          return {
+            id: r.id,
+            knmpId: k.id,
+            ranking: r.ranking,
+            ccScore: r.ccScore,
+            status: r.status,
+            dPlus: r.dPlus,
+            dMinus: r.dMinus,
+            date: r.date,
+            knmp: {
+              id: k.id,
+              name: k.name,
+              status: k.status
+            }
+          };
         }
-      },
-      orderBy: { ranking: 'asc' }
-    });
+        return null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.ranking - b.ranking);
 
     // E. Dapatkan daftar Peringatan Dini (Early Warning)
     const activeWarnings = await getActiveEarlyWarnings();

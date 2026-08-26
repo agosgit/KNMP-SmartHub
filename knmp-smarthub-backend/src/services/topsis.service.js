@@ -159,15 +159,12 @@ const runTopsisCalculation = async (date = new Date()) => {
     const item = ccScores[rank - 1];
     const status = getUrgencyStatus(item.ccScore);
 
-    // Cek apakah data ranking untuk hari ini sudah ada
+    // Cek apakah data ranking untuk KNMP ini sudah ada (ambil yang terbaru)
     const existingRanking = await prisma.topsisRanking.findFirst({
       where: {
-        knmpId: item.knmp.id,
-        date: {
-          gte: startOfDay,
-          lte: endOfDay
-        }
-      }
+        knmpId: item.knmp.id
+      },
+      orderBy: { date: 'desc' }
     });
 
     let savedRanking;
@@ -181,6 +178,14 @@ const runTopsisCalculation = async (date = new Date()) => {
           dPlus: item.dPlus,
           dMinus: item.dMinus,
           date
+        }
+      });
+
+      // Bersihkan jika ada duplikat ranking lama untuk KNMP yang sama
+      await prisma.topsisRanking.deleteMany({
+        where: {
+          knmpId: item.knmp.id,
+          id: { not: savedRanking.id }
         }
       });
     } else {
