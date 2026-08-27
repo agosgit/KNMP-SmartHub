@@ -10,6 +10,7 @@ import {
   TrendingUp, 
   Users, 
   AlertTriangle,
+  Snowflake,
   Loader2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -19,7 +20,7 @@ const OperationalInput = () => {
   const [knmps, setKnmps] = useState([]);
   const [loadingKnmps, setLoadingKnmps] = useState(true);
   
-  // Tab State: 'production' | 'distribution' | 'cooperative' | 'report'
+  // Tab State: 'production' | 'distribution' | 'cooperative' | 'coldstorage' | 'report'
   const [activeTab, setActiveTab] = useState('production');
   const [submitting, setSubmitting] = useState(false);
 
@@ -40,7 +41,11 @@ const OperationalInput = () => {
   const [coopTransactions, setCoopTransactions] = useState('');
   const [coopValue, setCoopValue] = useState('');
   
-  // Tab 4: Monitoring Report
+  // Tab 4: Cold Storage
+  const [coldStorageScore, setColdStorageScore] = useState('80');
+  const [coldStorageTemp, setColdStorageTemp] = useState('-18');
+
+  // Tab 5: Monitoring Report
   const [reportTitle, setReportTitle] = useState('');
   const [reportNotes, setReportNotes] = useState('');
   const [reportStatus, setReportStatus] = useState('NORMAL');
@@ -79,6 +84,8 @@ const OperationalInput = () => {
       case 'distribution':
       case 'cooperative':
         return role === 'KOPERASI';
+      case 'coldstorage':
+        return role === 'TPI' || role === 'PENGELOLA';
       case 'report':
         return role === 'PENYULUH';
       default:
@@ -96,6 +103,8 @@ const OperationalInput = () => {
     setCoopMembers('');
     setCoopTransactions('');
     setCoopValue('');
+    setColdStorageScore('80');
+    setColdStorageTemp('-18');
     setReportTitle('');
     setReportNotes('');
     setReportStatus('NORMAL');
@@ -131,6 +140,11 @@ const OperationalInput = () => {
           activeMembers: coopMembers,
           transactions: coopTransactions,
           transactionValue: coopValue
+        });
+      } else if (activeTab === 'coldstorage') {
+        await API.post('/operational/cold-storage', {
+          knmpId,
+          score: parseFloat(coldStorageScore)
         });
       } else if (activeTab === 'report') {
         await API.post('/operational/report', {
@@ -205,6 +219,14 @@ const OperationalInput = () => {
         >
           <Users size={16} />
           <span>Aktivitas Koperasi</span>
+        </button>
+
+        <button 
+          onClick={() => setActiveTab('coldstorage')}
+          style={{ ...styles.tabButton, ...(activeTab === 'coldstorage' ? styles.tabButtonActive : {}) }}
+        >
+          <Snowflake size={16} />
+          <span>Utilisasi Cold Storage</span>
         </button>
 
         <button 
@@ -361,7 +383,59 @@ const OperationalInput = () => {
               </>
             )}
 
-            {/* TAB 4: MONITORING REPORT */}
+            {/* TAB 4: COLD STORAGE */}
+            {activeTab === 'coldstorage' && (
+              <>
+                <div style={styles.formHeader}>
+                  <h3 style={styles.formTitle}>Form Utilisasi Fasilitas Cold Storage</h3>
+                  <p style={styles.formSubtitle}>Input tingkat keterisian kapasitas ruang pendingin beku ikan</p>
+                </div>
+
+                <div style={styles.inputGroup}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <label className="form-label">Tingkat Keterisian / Utilisasi Ruang Beku (%)</label>
+                    <span style={{ fontWeight: '700', color: 'var(--color-primary)', fontSize: '16px' }}>{coldStorageScore}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value={coldStorageScore}
+                    onChange={(e) => setColdStorageScore(e.target.value)}
+                    style={{ width: '100%', accentColor: 'var(--color-primary)', cursor: 'pointer', height: '8px' }}
+                  />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--text-muted)' }}>
+                    <span>0% (Kosong/Rusak)</span>
+                    <span>50% (Sedang)</span>
+                    <span>100% (Optimal Penuh)</span>
+                  </div>
+                </div>
+
+                <div style={styles.rowInputs}>
+                  <div style={styles.inputGroup}>
+                    <label className="form-label">Suhu Operasional Rata-rata (°C)</label>
+                    <input
+                      type="number"
+                      placeholder="Contoh: -18"
+                      value={coldStorageTemp}
+                      onChange={(e) => setColdStorageTemp(e.target.value)}
+                      className="form-input"
+                    />
+                  </div>
+                  <div style={styles.inputGroup}>
+                    <label className="form-label">Status Kelaikan Kompresor</label>
+                    <select className="form-input" defaultValue="OPTIMAL">
+                      <option value="OPTIMAL">OPTIMAL (Suhu Stabil &lt; -18°C)</option>
+                      <option value="MAINTENANCE">MAINTENANCE (Pemeliharaan Berkala)</option>
+                      <option value="KENDALA">KENDALA SUHU (Fluktuasi Suhu Pendingin)</option>
+                    </select>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* TAB 5: MONITORING REPORT */}
             {activeTab === 'report' && (
               <>
                 <div style={styles.formHeader}>

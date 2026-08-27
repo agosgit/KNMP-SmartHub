@@ -50,9 +50,22 @@ const addProduction = async (req, res) => {
       }
     });
 
-    // B. Hitung skor KPI Produksi (0 - 100)
-    // Skor = (Volume Terkumpul / Target) * 100, max 100
-    const calculatedScore = Math.min(100, (parseFloat(volumeKg) / TARGETS.PRODUCTION_KG) * 100);
+    // B. Hitung akumulasi volume 30 hari terakhir terhadap target bulanan (20.000 kg)
+    const thirtyDaysAgo = new Date(inputDate);
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const productionAggregate = await prisma.fishProduction.aggregate({
+      where: {
+        knmpId: parseInt(knmpId),
+        date: { gte: thirtyDaysAgo, lte: inputDate }
+      },
+      _sum: {
+        volumeKg: true
+      }
+    });
+
+    const totalVolume = productionAggregate._sum.volumeKg || parseFloat(volumeKg);
+    const calculatedScore = Math.min(100, (totalVolume / TARGETS.PRODUCTION_KG) * 100);
 
     // C. Cari definisi KPI untuk PRODUCTION
     const kpiDefinition = await prisma.kpiDefinition.findUnique({
@@ -111,8 +124,22 @@ const addDistribution = async (req, res) => {
       }
     });
 
-    // B. Hitung skor KPI Distribusi (0 - 100)
-    const calculatedScore = Math.min(100, (parseFloat(volumeKg) / TARGETS.DISTRIBUTION_KG) * 100);
+    // B. Hitung akumulasi volume distribusi 30 hari terakhir terhadap target (15.000 kg)
+    const thirtyDaysAgo = new Date(inputDate);
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const distAggregate = await prisma.fishDistribution.aggregate({
+      where: {
+        knmpId: parseInt(knmpId),
+        date: { gte: thirtyDaysAgo, lte: inputDate }
+      },
+      _sum: {
+        volumeKg: true
+      }
+    });
+
+    const totalDistVolume = distAggregate._sum.volumeKg || parseFloat(volumeKg);
+    const calculatedScore = Math.min(100, (totalDistVolume / TARGETS.DISTRIBUTION_KG) * 100);
 
     // C. Update skor KPI
     const kpiDefinition = await prisma.kpiDefinition.findUnique({
@@ -170,8 +197,22 @@ const addCooperativeActivity = async (req, res) => {
       }
     });
 
-    // B. Hitung skor KPI Koperasi (0 - 100)
-    const calculatedScore = Math.min(100, (parseInt(transactions) / TARGETS.COOP_TRANSACTIONS) * 100);
+    // B. Hitung akumulasi transaksi 30 hari terakhir terhadap target (100 transaksi)
+    const thirtyDaysAgo = new Date(inputDate);
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const coopAggregate = await prisma.cooperative.aggregate({
+      where: {
+        knmpId: parseInt(knmpId),
+        date: { gte: thirtyDaysAgo, lte: inputDate }
+      },
+      _sum: {
+        transactions: true
+      }
+    });
+
+    const totalTransactions = coopAggregate._sum.transactions || parseInt(transactions);
+    const calculatedScore = Math.min(100, (totalTransactions / TARGETS.COOP_TRANSACTIONS) * 100);
 
     // C. Update skor KPI
     const kpiDefinition = await prisma.kpiDefinition.findUnique({
@@ -237,8 +278,28 @@ const addMonitoringReport = async (req, res) => {
       });
     }
 
+    // C. Update skor KPI Kualitas Pelaporan (REPORTING) secara aktif (skor 95.0 untuk pelaporan aktif & tepat waktu)
+    const kpiDefinition = await prisma.kpiDefinition.findUnique({
+      where: { key: 'REPORTING' }
+    });
+
+    if (kpiDefinition) {
+      await prisma.kpiScore.create({
+        data: {
+          knmpId: parseInt(knmpId),
+          kpiDefinitionId: kpiDefinition.id,
+          score: 95.0,
+          date: inputDate
+        }
+      });
+
+      // Recalculate Health Index & TOPSIS
+      await calculateKnmpHealthIndex(parseInt(knmpId));
+      await runTopsisCalculation();
+    }
+
     return res.status(201).json({
-      message: 'Laporan monitoring lapangan berhasil disimpan.',
+      message: 'Laporan monitoring lapangan berhasil disimpan dan skor KPI Pelaporan terupdate.',
       report
     });
   } catch (error) {

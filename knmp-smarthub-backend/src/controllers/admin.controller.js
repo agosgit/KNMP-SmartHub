@@ -1,5 +1,76 @@
 const bcrypt = require('bcryptjs');
 const prisma = require('../lib/db');
+const { calculateKnmpHealthIndex } = require('../services/healthIndex.service');
+const { runTopsisCalculation } = require('../services/topsis.service');
+
+// Helper: Sinkronisasi otomatis skor KPI Infrastruktur dan Cold Storage berdasarkan kondisi fasilitas riil
+const syncKnmpFacilityKpis = async (knmpId) => {
+  if (!knmpId) return;
+
+  const facilities = await prisma.facility.findMany({
+    where: { knmpId: parseInt(knmpId) }
+  });
+
+  if (facilities.length === 0) return;
+
+  // 1. Hitung Skor KPI INFRASTRUCTURE: (Fasilitas ACTIVE / Total Fasilitas) * 100
+  const activeCount = facilities.filter(f => f.status === 'ACTIVE').length;
+  const infraScore = parseFloat(((activeCount / facilities.length) * 100).toFixed(2));
+
+  const infraKpi = await prisma.kpiDefinition.findUnique({
+    where: { key: 'INFRASTRUCTURE' }
+  });
+
+  if (infraKpi) {
+    await prisma.kpiScore.create({
+      data: {
+        knmpId: parseInt(knmpId),
+        kpiDefinitionId: infraKpi.id,
+        score: infraScore,
+        date: new Date()
+      }
+    });
+  }
+
+  // 2. Cek status Cold Storage
+  const coldStorageFacilities = facilities.filter(f => f.type === 'COLD_STORAGE');
+  if (coldStorageFacilities.length > 0) {
+    const csKpi = await prisma.kpiDefinition.findUnique({
+      where: { key: 'COLD_STORAGE' }
+    });
+
+    if (csKpi) {
+      const activeCs = coldStorageFacilities.filter(f => f.status === 'ACTIVE');
+      const maintenanceCs = coldStorageFacilities.filter(f => f.status === 'MAINTENANCE');
+
+      let csScore;
+      if (activeCs.length === coldStorageFacilities.length) {
+        const existingScore = await prisma.kpiScore.findFirst({
+          where: { knmpId: parseInt(knmpId), kpiDefinitionId: csKpi.id },
+          orderBy: { date: 'desc' }
+        });
+        csScore = existingScore ? existingScore.score : 85.0;
+      } else if (activeCs.length > 0 || maintenanceCs.length > 0) {
+        csScore = 50.0;
+      } else {
+        csScore = 20.0;
+      }
+
+      await prisma.kpiScore.create({
+        data: {
+          knmpId: parseInt(knmpId),
+          kpiDefinitionId: csKpi.id,
+          score: csScore,
+          date: new Date()
+        }
+      });
+    }
+  }
+
+  // Trigger recalculate Health Index & TOPSIS
+  await calculateKnmpHealthIndex(parseInt(knmpId));
+  await runTopsisCalculation();
+};
 
 // ============================================================
 // USER MANAGEMENT
@@ -328,8 +399,11 @@ const createFacility = async (req, res) => {
       }
     });
 
+    // Sinkronisasi otomatis KPI Infrastruktur & Cold Storage
+    await syncKnmpFacilityKpis(facility.knmpId);
+
     return res.status(201).json({
-      message: 'Fasilitas baru berhasil ditambahkan.',
+      message: 'Fasilitas baru berhasil ditambahkan dan skor KPI disinkronkan.',
       facility
     });
   } catch (error) {
@@ -361,8 +435,11 @@ const updateFacility = async (req, res) => {
       }
     });
 
+    // Sinkronisasi otomatis KPI Infrastruktur & Cold Storage
+    await syncKnmpFacilityKpis(facility.knmpId);
+
     return res.json({
-      message: 'Data fasilitas berhasil diperbarui.',
+      message: 'Data fasilitas berhasil diperbarui dan skor KPI disinkronkan.',
       facility
     });
   } catch (error) {
@@ -382,9 +459,23 @@ const deleteFacility = async (req, res) => {
       return res.status(400).json({ message: 'ID fasilitas tidak valid.' });
     }
 
+    const facility = await prisma.facility.findUnique({
+      where: { id },
+      select: { knmpId: true }
+    });
+
+    if (!facility) {
+      return res.status(404).json({ message: 'Fasilitas tidak ditemukan.' });
+    }
+
+    const targetKnmpId = facility.knmpId;
+
     await prisma.facility.delete({ where: { id } });
 
-    return res.json({ message: 'Fasilitas berhasil dihapus.' });
+    // Sinkronisasi otomatis KPI Infrastruktur & Cold Storage
+    await syncKnmpFacilityKpis(targetKnmpId);
+
+    return res.json({ message: 'Fasilitas berhasil dihapus dan skor KPI disinkronkan.' });
   } catch (error) {
     if (error.code === 'P2025') {
       return res.status(404).json({ message: 'Fasilitas tidak ditemukan.' });

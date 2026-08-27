@@ -106,9 +106,31 @@ const calculateKnmpHealthIndex = async (knmpId, date = new Date()) => {
   }
 
   // 5. Update status kesehatan global di tabel Knmp
+  // Cek apakah ada laporan kendala lapangan aktif dalam 14 hari terakhir yang berstatus WARNING atau CRITICAL
+  const fourteenDaysAgo = new Date(date);
+  fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+
+  const activeReport = await prisma.monitoringReport.findFirst({
+    where: {
+      knmpId,
+      status: { in: ['CRITICAL', 'WARNING'] },
+      date: { gte: fourteenDaysAgo }
+    },
+    orderBy: { date: 'desc' }
+  });
+
+  let globalStatus = status === 'KRITIS' ? 'CRITICAL' : (status === 'PERLU_PERHATIAN' ? 'WARNING' : 'NORMAL');
+  if (activeReport) {
+    if (activeReport.status === 'CRITICAL') {
+      globalStatus = 'CRITICAL';
+    } else if (activeReport.status === 'WARNING' && globalStatus === 'NORMAL') {
+      globalStatus = 'WARNING';
+    }
+  }
+
   await prisma.knmp.update({
     where: { id: knmpId },
-    data: { status: status === 'KRITIS' ? 'CRITICAL' : (status === 'PERLU_PERHATIAN' ? 'WARNING' : 'NORMAL') }
+    data: { status: globalStatus }
   });
 
   return {
