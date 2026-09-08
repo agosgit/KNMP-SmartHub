@@ -185,16 +185,6 @@ async function main() {
       },
     });
     penyuluhUsers[knmp.id] = penyuluh;
-
-    await prisma.user.create({
-      data: {
-        email: `pengelola.${baseName}@smarthub.go.id`,
-        name: `Pengelola - ${knmp.name.replace('KNMP ', '')}`,
-        password: hashedPassword,
-        role: 'PENGELOLA',
-        knmpId: knmp.id
-      },
-    });
   }
 
   console.log('Created Users with Relational Links.');
