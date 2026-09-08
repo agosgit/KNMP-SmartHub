@@ -198,13 +198,6 @@ const Login = () => {
         {/* TAB 1: QUICK DEMO ACCOUNTS (REKOMENDASI UNTUK JURI & PRESENTASI) */}
         {activeTab === 'demo' && (
           <div>
-            <div style={styles.demoIntroBox}>
-              <Sparkles size={16} color="var(--color-primary)" style={{ flexShrink: 0, marginTop: '2px' }} />
-              <p style={styles.demoIntroText}>
-                <strong>Mode Pengujian Juri (Sesuai Bab 2.3.6 Proposal):</strong> Klik salah satu peran di bawah untuk menguji hierarki hak akses (RBAC) dari Tingkat 1 (Pusat), Tingkat 2 (Dinas Daerah), hingga Tingkat 3 (Ujung Tombak Lapangan).
-              </p>
-            </div>
-
             <div style={styles.demoGrid}>
               {DEMO_ACCOUNTS.map((account) => {
                 const Icon = account.icon;
