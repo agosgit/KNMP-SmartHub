@@ -4,7 +4,6 @@
 # Pengecualian (Kecuali folder-folder ini, biarkan Git mendeteksinya)
 !/knmp-smarthub-frontend/
 !/knmp-smarthub-backend/
-!/*.md
 
 # Pengecualian tambahan jika Anda ingin file .gitignore ini juga di-track
 !.gitignore
