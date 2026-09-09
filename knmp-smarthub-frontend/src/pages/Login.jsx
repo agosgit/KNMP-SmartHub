@@ -163,9 +163,6 @@ const Login = () => {
             KNMP <span style={styles.brandHighlight}>SmartHub</span>
           </h2>
           <p style={styles.brandSub}>Government Decision Intelligence Platform</p>
-          <div style={styles.govTag}>
-            <span>🏆 Finalis KMIPN VIII 2026 — E-Government</span>
-          </div>
         </div>
 
         {/* Tab Switcher (Demo Cepat vs Manual) */}
@@ -379,18 +376,6 @@ const styles = {
     letterSpacing: '0.05em',
     marginTop: '5px',
     fontWeight: '600',
-  },
-  govTag: {
-    marginTop: '10px',
-    display: 'inline-flex',
-    alignItems: 'center',
-    padding: '4px 12px',
-    borderRadius: '20px',
-    backgroundColor: 'rgba(0, 242, 254, 0.08)',
-    border: '1px solid rgba(0, 242, 254, 0.2)',
-    fontSize: '11px',
-    fontWeight: '600',
-    color: 'var(--color-primary)',
   },
   tabContainer: {
     display: 'grid',
